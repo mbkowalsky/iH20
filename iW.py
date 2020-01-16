@@ -76,7 +76,35 @@ if __name__ == '__main__':
                 'computations': BooleanVar(value='False'),
                 'results': BooleanVar(value='False')}
 
-           # Computational parameters
+            # Project parameters
+            self.projVar = {
+                'directory': {
+                    'label': 'Project directory:',
+                    'optionList': [],
+                    'default': [],
+                    'previous': [],
+                    'current': StringVar()},
+               'file-name': {
+                    'label': 'Project filename:',
+                    'optionList': [],
+                    'default': [],
+                    'previous': [],
+                    'current': StringVar()},
+               'project-name': {
+                    'label': 'Project name:',
+                    'optionList': [],
+                    'default': 'My Project',
+                    'previous': [],
+                    'current': StringVar()},
+               'comment': {
+                    'label': 'Comments:',
+                    'optionList': [],
+                    'default': [],
+                    'previous': [],
+                    'current': StringVar()},
+            }
+
+            # Computational parameters
             self.compVar = {
                 'application-mode': {
                     'label': 'Application mode:',
@@ -177,7 +205,7 @@ if __name__ == '__main__':
 
     def frameMsgOKCancel(FrameIn, msgText, commandOK, VarProj):
         frm = Frame(FrameIn)
-        frm.config(bd=1, relief=SUNKEN, bg=tabColor)
+        frm.config(bd=1, relief=SUNKEN, bg=color['tab'])
         frm.pack(expand=NO, fill=X, side=BOTTOM)
 
         cancelButton = Button(
@@ -196,7 +224,7 @@ if __name__ == '__main__':
         label = Label(frm,
             text='Message:',     
             anchor=W,
-            bg=tabColor,
+            bg=color['tab'],
             fg=colorMsgFont,
             font=('Helvetica') )
         label.config(width=10, padx=3, pady=3)
@@ -205,7 +233,7 @@ if __name__ == '__main__':
         message = Label(frm,
             textvariable = msgText,
             anchor=W,
-            bg=tabColor,
+            bg=color['tab'],
             fg=colorMsgFont,
             font=('Helvetica') )
         message.config(width=70, padx=3, pady=3)
@@ -235,12 +263,8 @@ if __name__ == '__main__':
                             tabParameterInfo.editButton['state'] = 'disabled'
                             tabComputationsInfo.editButton['state'] = 'disabled'
                             tabResults.editButton['state'] = 'disabled'
-                            VarProj.status['project'].set(False)
-                            VarProj.status['models'].set(False)
-                            VarProj.status['parameters'].set(False)
-                            VarProj.status['observations'].set(False)
-                            VarProj.status['computations'].set(False)
-                            VarProj.status['results'].set(False)
+                            for key in VarProj.status:
+                                VarProj.status[key].set(False)
                         changeTabColor(tabProjectInfo, colorTabDefault) 
 
                     elif selectedTab.get() == 'Model Setup':
@@ -379,9 +403,9 @@ if __name__ == '__main__':
     tabProjectInfo = WorkflowTab(
         frm,
         'Project', lambda:editProject(),
-        [('Name:', VarProj.name),
-         ('File:', VarProj.filename),
-         ('Comments:', VarProj.comment)],
+        [('Name:', VarProj.projVar['project-name']['current']),
+         ('File:', VarProj.projVar['file-name']['current']),
+         ('Comments:', VarProj.projVar['comment']['current'])],
         VarProj.editButtonStatus['project'],
         VarProj.status['project'])
 
@@ -393,7 +417,6 @@ if __name__ == '__main__':
         'Model Setup', lambda:editModelSetup(),
         [('Models:', VarProj.numMod),
          ('Model name:', VarMod[i].name),
-        #('Input files:', VarMod[i].inputFilesProjectContainer)],
          ('Input files:', VarMod[i].inputFiles)],
         VarProj.editButtonStatus['models'],
         VarProj.status['models'])
@@ -455,16 +478,7 @@ if __name__ == '__main__':
         changeTabColor(tabProjectInfo,  colorTabActive)            
         clearFrame(frmInputGlobal)                        
         frmInputGlobal = FrameInput(frmSubInput)
-        datProj = [
-            # MBK!!! Need to add control on user changing directory in entry widget
-            ('Project directory:', VarProj.dir),
-            # MBK!!! May need to add control in entry widget on characters or 
-            #        have popup dialog together with directory selection
-            ('Project filename:', VarProj.filename),
-            ('Project name:', VarProj.name),
-            ('Comments:', VarProj.comment)
-            ]
-        ProjectContainer(frmInputGlobal, 'Project details', datProj, VarProj, VarMod) 
+        ProjectContainer(frmInputGlobal, 'Project details', VarProj, VarMod) 
         printMsg('"Edit Project" clicked.')                 
 
     def editModelSetup():

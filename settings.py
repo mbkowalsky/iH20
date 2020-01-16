@@ -3,20 +3,47 @@
 # Reading xml file
 rootElement = 'project'
 
+#MBK!!! should change these settings to a class or dict
 # Settings for colors
-tabColor         = 'white'
+color = {
+    'tab': 'white',
+    'tabTitle': '#8E8E8E',
+    'workflow': '#f6f6f6',
+    'keyButton': '#8E8E8E',
+    'infoBG':'white',
+    'inputBG': 'white',
+    'inputBox': '#8E8E8E',
+    'container': 'white',
+    'msgFont': 'black',
+    'info': 'black',
+    'infoEntry': 'gray',
+    'inputEntry': 'gray',
+    'separator': '#f6f6f6',
+    'workBG': '#f6f6f6',
+    'workLabel': 'black',
+    'workEntry': 'grey',
+    'tabDefault': '#f6f6f6',
+    'tabActive': 'gray90',
+    'titleTab': '#f6f6f6',
+    'toolbar': '#f6f6f6',
+    'canv': 'white',
+    'addModel': 'white'
+}
+
+# Settings for colors
+#color['tab']         = 'white'
 tabTitleColor    = '#8E8E8E'
 colorWorkflow    = '#f6f6f6'
 keyButtonColor   = '#8E8E8E'
 colorInfoBG      = 'white'
-colorInputBG     = 'white'
+colorInputBG     = 'white'   #
 colorInputBox    = '#8E8E8E'
 colorContainer   = '#f6f6f6'  
 colorContainer   = 'white'    
 colorMsgFont     = 'black'
 colorInfo        = 'black'
 colorInfoEntry   = 'gray'
-colorInputEntry  = 'gray'
+colorInputEntry  = 'gray'    #
 #colorSeparator  = '#f6f6f6'
 colorSeparator   = 'white'
 colorSeparator   = '#f6f6f6'

@@ -3,8 +3,12 @@
    <!-- Comments? -->
    <!-- Settings? -->
 
-   <projectInfo>
-   </projectInfo>
+   <project-info>
+      <directory>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</directory>
+      <file-name>projectOne.xml</file-name>
+      <project-name>Project</project-name>
+      <comment>Data from projectInfo.xml X </comment>
+   </project-info>
 
    <modelInfo name="My Model (1)">
       <modelNumber>1</modelNumber>
@@ -30,5 +34,10 @@
 
    <!-- Available results, names of output files? -->
    <results>
+      <file>None</file>
    </results>
 </project>
+
+<!--
+
+-->

@@ -64,7 +64,7 @@ class FrameLabel(Frame):
             frm,
             text=name,
             anchor=NW,
-            bg=tabColor,
+            bg=color['tab'],
             fg=tabTitleColor,
             font=('Helvetica', 18, 'bold'))
         self.msg.config(width=20, height=1, padx=10, pady=5)

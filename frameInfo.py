@@ -25,12 +25,12 @@ class InfoSummary(Frame):
         self.frames=[]
         for items in datInfoSummary:
             frame = Frame(self)
-            frame.config(bd=2, relief=FLAT, bg=tabColor)
+            frame.config(bd=2, relief=FLAT, bg=color['tab'])
             frame.pack(expand=YES, fill=BOTH, side=TOP)
             self.frames.append(frame)
 
             row = Frame(frame)
-            row.config(bd=2, relief=FLAT, bg=tabColor)
+            row.config(bd=2, relief=FLAT, bg=color['tab'])
             row.pack(expand=YES, fill=BOTH, side=TOP)
             self.rows.append(row)
 
@@ -40,7 +40,7 @@ class InfoSummary(Frame):
                 justify=RIGHT,
                 padx=5,
                 pady=0,
-                bg=tabColor,
+                bg=color['tab'],
                 fg=colorInfo,
                 wraplength=100,
                 font=('Helvetica', sizeInfoType))
@@ -55,7 +55,7 @@ class InfoSummary(Frame):
                 anchor=NW,
                 padx=5,
                 pady=0,
-                bg=tabColor,
+                bg=color['tab'],
                 fg=colorInfoEntry,
                 wraplength=wrapLengthInfo,
                 font=('Helvetica', sizeInfoEntry))
@@ -73,7 +73,7 @@ class InfoSubFrame(Frame):
              relief=FLAT, 
              width=10, 
              height=30, 
-             bg=tabColor, 
+             bg=color['tab'], 
              padx=10)
          self.pack(side=TOP, fill=BOTH)
 
@@ -85,7 +85,7 @@ class InfoTitleMenu(Frame):
         self.config(bd=2, relief=FLAT, width=10, height=30)
         self.pack(side=TOP, fill=BOTH)
 
-        self.infoMenu = Menubutton(self, text='View', underline=0, bg=tabColor)
+        self.infoMenu = Menubutton(self, text='View', underline=0, bg=color['tab'])
         self.infoMenu.pack(side=RIGHT, fill=X, padx=10)
         self.file = Menu(self.infoMenu)
         for (name, key) in datInfoMenu:
@@ -95,7 +95,7 @@ class InfoTitleMenu(Frame):
         self.title = Label(
             self,
             text=titleInfo,
-            bg=tabColor,
+            bg=color['tab'],
             fg=tabTitleColor,
             font=('Helvetica', 18, 'bold'),
             anchor=W)

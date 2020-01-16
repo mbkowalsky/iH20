@@ -52,7 +52,6 @@ def readXML(VarProj, VarMod):
              'Missing <'+modelElement+'> in xml file'
             ])
 
-
     modNum = 0
     for item in datlist:
         datXML = [
@@ -101,56 +100,60 @@ def readXML(VarProj, VarMod):
         VarMod[i].simulator.set(simulatorNames[i])
     VarProj.numMod.set(numModels)
 
-# Computations
-    mainElement = 'computations-info'    
+    multiElement = [
+        'project-info', 
+        'computations-info'
+    ]
+    multiVar = [
+        VarProj.projVar, 
+        VarProj.compVar
+    ]
 
-    # Cycle through each key in computations and look for it in xml file 
-    for var in VarProj.compVar:
-        print('>>>Reading keyword:', var)
-        entry = dat[rootElement][mainElement].get(var)
-        selectOptions = VarProj.compVar[var].get('optionList')
+    for tabNum in range(len(multiVar)):
 
-        # Check whether keyword was found in xml file
-        if entry:
+        mainElement = multiElement[tabNum]   
+        genVar = multiVar[tabNum]
+        print('>Reading', mainElement)
 
-            if selectOptions == None: 
-                print("   'optionList' was not found")
-                VarProj.compVar[var]['current'].set(entry)
+        # Cycle through each key and look for it in xml file 
+        for var in genVar:
+            print(' >>>Reading keyword:', var)
+            try:
+                selectOptions = genVar[var].get('optionList')
+            except:
+                selectOptions = []
 
-            elif selectOptions == []: 
-                # Keyword 'optionList' found but has no entries
-                print("   'optionList' has no entries")
-                VarProj.compVar[var]['current'].set(entry)
+            entry = dat[rootElement][mainElement].get(var)
+            if entry: #keyword was found in xml file
+                if selectOptions == None:  
+                    print("    'optionList' was not found")
+                    genVar[var]['current'].set(entry)
 
-            else:
-                # Keyword 'optionList' found and has entries
-                print("   'optionList' entries:")
-                print(selectOptions)
-                value = []
-                for key, tkval in selectOptions.items():
-                    if tkval == entry:
-                        value = key
-
-                # Check whether xml entry corresponds to key in optionList
-                if value:
-                    print('   Option found for this entry:', value)
-                   #VarProj.compVar[var]['current'].set(entry)
-                    VarProj.compVar[var]['current'].set(value)
+                elif selectOptions == []:
+                    print("    'optionList' has no entries")
+                    print('     entry found:', entry)
+                    genVar[var]['current'].set(entry)
                 else:
-                    print('   XML entry:', entry)
-                    print('   No option found for this entry')
-                    MsgInformation(
-                        [],
-                        ['Message',
-                         ('The unrecognized entry "'+entry+
-                          '" was read for element <'+entry+'> '+
-                          'in input file "'+VarProj.filename.get()+'."')
-                        ])
-        else:
-            print('   Keyword not found:', var)
+                    print("    'optionList' entries:")
+                    value = []
+                    for key, tkval in selectOptions.items():
+                        if tkval == entry:
+                            value = key
+                    if value:
+                        print('    Option found in list:', value)
+                        genVar[var]['current'].set(value)
+                    else:
+                        print('   No option found for this entry:', entry)
+                        MsgInformation(
+                            [],
+                            ['Message',
+                             ('No option found for this entry:'+entry)
+                            ])
+            else:
+                print('    Keyword not found in xml file:', var)
 
         # Print entire dictionary to screen:  
-#       printDict(VarProj.compVar)
+       #printDict(VarProj.compVar)
 
 # Results
     try:

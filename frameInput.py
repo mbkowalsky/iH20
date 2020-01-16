@@ -14,7 +14,7 @@ class FrameSubInput(Frame):
 
     def __init__(self, parent=None, **options):
         Frame.__init__(self, parent, **options)
-        self.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=BOTH)
 
 class FrameInput(Frame):
@@ -25,20 +25,20 @@ class FrameInput(Frame):
 
     def __init__(self, parent=None, **options):
         Frame.__init__(self, parent, **options)
-        self.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=BOTH)
 
 ####################
 # Project
 ####################
 class ProjectContainer(Frame):
-    def __init__(self, parent=None, nameInput=[], datProj=[], VarProj=[], VarMod=[]):
+    def __init__(self, parent=None, nameInput=[], VarProj=[], VarMod=[]):
         Frame.__init__(self, parent)
         self.pack(expand=YES, fill=BOTH)
 
         self.title = FrameLabel(self, nameInput)
         self.frmLabelMenu = Frame(self)
-        self.frmLabelMenu.config(bd=1, relief=FLAT, height=30, bg=tabColor)
+        self.frmLabelMenu.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
         self.menuOpenProject = Menubutton(
             self.frmLabelMenu, 
@@ -48,7 +48,7 @@ class ProjectContainer(Frame):
             width=0)
         self.optionsOpenProject = Menu(self.menuOpenProject)
 
-#MBK!!!: currently calling different function for opening file than in other parts of the code. Use same instead?
+#MBK!!!: currently calling different function for opening file?
         self.optionsOpenProject.add_command(
             label='New', 
             command=lambda:openProject(VarProj, VarMod, 'New'))
@@ -56,7 +56,7 @@ class ProjectContainer(Frame):
             label='Open from file', 
             command=lambda:openProject(VarProj, VarMod, []))
         self.optionsOpenProject.add_command(
-            label='Open debug',
+            label='Open test',
            #command=MsgNotImplemented)
             command=lambda:openProject(VarProj, VarMod, 'Open test'))
         self.optionsOpenProject.add_command(
@@ -64,14 +64,13 @@ class ProjectContainer(Frame):
             command=MsgNotImplemented)
         self.menuOpenProject.config(menu=self.optionsOpenProject)
 
-#MBK!!! change to type of project and menuoption?
         self.nameLabel = Label(
             self.frmLabelMenu,
-            text='Project:',
+            text='Project option:',
             justify=RIGHT,
             width=40,
             bg='white',
-            fg=colorInputEntry,
+            fg=color['inputEntry'],
             font=('Helvetica', sizeInputEntry, 'bold'))
         self.nameLabel.config(anchor=E)
 
@@ -81,28 +80,48 @@ class ProjectContainer(Frame):
 
         self.frmProjectInfo = Frame(self)
         self.frmProjectInfo.pack(side=LEFT, fill=X, expand=YES)
-        self.frmProjectInfo.config(bd=1, relief=FLAT, height=30, bg=tabColor)
+        self.frmProjectInfo.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
+        # Add labels and entries for a model:
         self.entries = []
-        for (label, value) in datProj:
-            row = Frame(self.frmProjectInfo)
-            lab = Label(row,
-                text=label,
-                justify=RIGHT,
-                anchor=E,
-                width=40,
-                bg='white',
-                fg=colorInputEntry,
-                font=('Helvetica', sizeInputEntry, 'bold'))
-#MBK??? Instead of instantly, may have info transferred on OK
-            ent = Entry(row, textvariable=value)
-            row.pack(side=TOP, fill=X)
-            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
-            self.entries.append(ent)
-       
+        for (label, value) in VarProj.projVar.items():
+           #if not label == 'application-mode':
+            if value['current'].get():
+                row = Frame(self.frmProjectInfo)
+                lab = Label(row,
+                    text=value['label'],
+                    justify=RIGHT,
+                    anchor=E,
+                    width=40,
+                    bg='white',
+                    fg=color['inputEntry'],
+                    font=('Helvetica', sizeInputEntry, 'bold'))
+                ent = Entry(row, textvariable=value['current'])
+                row.pack(side=TOP, fill=X)
+                ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+                lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+                self.entries.append(ent)
+ 
+                """
+                row = Frame(self.frmProjectInfo)
+                lab = Label(row,
+                    text=value['label'],
+                    justify=RIGHT,
+                    anchor=E,
+                    width=20,
+                    bg='white',
+                    fg=color['inputEntry'],
+                    font=('Helvetica', sizeInputEntry, 'bold'))
+                entry = Entry(row, textvariable=value['current'], width=60)
+                self.entries.append(entry)
+                row.pack(side=TOP, fill=X)
+                entry.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+                lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+                """
+
 #MBK!!! Keeping record of fetch button and def for now
-#       tmp = Button(self.frmProjectInfo, text='Fetch', command= (lambda: onFetch(VarProj, self.entries)))
+#       tmp = Button(self.frmProjectInfo, text='Fetch', 
+#                 command= (lambda: onFetch(VarProj, self.entries)))
 #       tmp.pack(side=RIGHT, padx=10)
 #def onFetch(VarProj, ents):
 #    VarProj.name.set(ents[0].get())
@@ -164,7 +183,7 @@ def addFile(frm, VarProj, VarMod, i, loadExisting):
             anchor=NW,
             width=20,
             bg='white',
-           #fg=colorInputEntry,
+           #fg=color['inputEntry'],
             fg='black',
             font=('Helvetica', sizeInputEntry)
             )
@@ -184,12 +203,12 @@ class ModelInputContainer(Frame):
 
     def __init__(self, parent=None, nameInput=[], VarProj=[], VarMod=[], NewModel = FALSE):
         Frame.__init__(self, parent)
-        self.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=BOTH)
         self.title = FrameLabel(self, nameInput)
         self.frmTitle = Frame(self)
         self.frmTitle.pack(fill=X)
-        self.frmTitle.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.frmTitle.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
 
         # Existing models  
         if VarProj.numMod.get()>0:
@@ -203,7 +222,7 @@ class ModelInputContainer(Frame):
             text='Add model',
             command=lambda:AddModel(self, VarProj, VarMod, VarProj.mNum.get(),TRUE),
             underline=0,
-            bg=tabColor)
+            bg=color['tab'])
         addModelButton.pack(side=RIGHT, fill=X, padx=0)
 
 class AddModel(Frame):
@@ -213,26 +232,26 @@ class AddModel(Frame):
     def __init__(self, parent=None, VarProj=[], VarMod=[], i=0, NewModel=FALSE):
         # Create frame into which model frames will be placed:
         Frame.__init__(self, parent)
-        self.config(bd=1, relief=SUNKEN, height=30, bg=tabColor)
+        self.config(bd=1, relief=SUNKEN, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=X, pady=5, padx=10)
       
         # Create frame for button to delete model:
         self.frmButton = Frame(self)
         self.frmButton.pack(side=RIGHT, fill=NONE, expand=YES, anchor=NE)
-        self.frmButton.config(bd=1, relief=FLAT, height=30, bg=colorInputBG)
+        self.frmButton.config(bd=1, relief=FLAT, height=30, bg=color['inputBG'])
         self.deleteButton = Button(
             self.frmButton,
             text='Delete model',
             command=lambda:self.deleteModel(), 
             underline=0,
-            bg=tabColor)
+            bg=color['tab'])
         self.deleteButton.config(anchor=E)
         self.deleteButton.pack(side=TOP, fill=X, padx=5, pady=5)
 
         # Create frame for a model and its entries:
         self.frmInput = Frame(self)
         self.frmInput.pack(side=LEFT, fill=NONE, expand=YES, anchor=W)
-        self.frmInput.config(bd=1, relief=FLAT, height=30, bg=tabColor)
+        self.frmInput.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
         # Create menu for simulator selection:
         row = Frame(self.frmInput)
@@ -244,7 +263,7 @@ class AddModel(Frame):
             anchor=E,
             width=20,
             bg=colorAddModel,
-            fg=colorInputEntry,
+            fg=color['inputEntry'],
             font=('Helvetica', sizeInputEntry, 'bold'))
 
         simOptions = [
@@ -282,7 +301,7 @@ class AddModel(Frame):
                 anchor=E,
                 width=20,
                 bg='white',
-                fg=colorInputEntry,
+                fg=color['inputEntry'],
                 font=('Helvetica', sizeInputEntry, 'bold'))
             entry = Entry(row, textvariable=value, width=60)
             self.entries.append(entry)
@@ -314,7 +333,7 @@ class AddModel(Frame):
             justify=RIGHT,
             width=20,
             bg='white',
-            fg=colorInputEntry,
+            fg=color['inputEntry'],
             font=('Helvetica', sizeInputEntry, 'bold'))
         self.nameLabel.config(anchor=E)
         self.nameLabel.pack(side=LEFT, expand=NO, fill=X, padx=10)
@@ -344,7 +363,7 @@ class CompInputContainer(Frame):
 
     def __init__(self, parent=None, nameInput=[], VarProj=[], VarMod=[], NewModel = FALSE):
         Frame.__init__(self, parent)
-        self.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=BOTH)
 
         self.title = FrameLabel(self, nameInput)
@@ -352,7 +371,7 @@ class CompInputContainer(Frame):
         self.frmTop = Frame(self)
        #self.frmTop.pack(fill=X)
         self.frmTop.pack(side=TOP, fill=NONE, expand=YES, anchor=W, padx=10)
-        self.frmTop.config(bd=2, relief=FLAT, height=30, bg=tabColor)
+        self.frmTop.config(bd=2, relief=FLAT, height=30, bg=color['tab'])
 
         row = Frame(self.frmTop)
         row.config(bg=colorAddModel)
@@ -363,7 +382,7 @@ class CompInputContainer(Frame):
             anchor=E,
             width=20,
             bg=colorAddModel,
-            fg=colorInputEntry,
+            fg=color['inputEntry'],
             font=('Helvetica', sizeInputEntry, 'bold'))
 
         compModeOptions = VarProj.compVar['application-mode']['optionList']
@@ -384,10 +403,12 @@ class CompInputContainer(Frame):
         label.pack(side=LEFT, expand=NO, fill=X, padx=10)
 #       test.pack(side=LEFT, expand=NO, fill=X, padx=10)
 
+#MBK!!! need to come back to this for input popping up in comp
     def makeCompInput(self, selectedMode, VarProj, VarMod):
 
-        if VarProj.compVar['application-mode']['current'].get() == 'Forward simulation':
-            modeInput(self, VarProj, VarMod)
+       #pass
+       #if VarProj.compVar['application-mode']['current'].get() == 'Forward simulation':
+        modeInput(self, VarProj, VarMod)
 
 class modeInput(Frame):
     """Create subframe in CompInputContainer for selected application mode.
@@ -396,23 +417,23 @@ class modeInput(Frame):
     def __init__(self, parent=None, VarProj=[], VarMod=[]):
         # Create frame into which model frames will be placed:
         Frame.__init__(self, parent)
-        self.config(bd=1, relief=SUNKEN, height=30, bg=tabColor)
+        self.config(bd=1, relief=SUNKEN, height=30, bg=color['tab'])
         self.pack(side=TOP, fill=X, pady=5, padx=10)
       
         # Create frame to enter for specs for selected application mode 
         self.frmInput = Frame(self)
         self.frmInput.pack(side=LEFT, fill=NONE, expand=YES, anchor=W)
-        self.frmInput.config(bd=1, relief=FLAT, height=30, bg=tabColor)
+        self.frmInput.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
         self.frmButton = Frame(self)
         self.frmButton.pack(side=RIGHT, fill=NONE, expand=YES, anchor=NE)
-        self.frmButton.config(bd=1, relief=FLAT, height=30, bg=colorInputBG)
+        self.frmButton.config(bd=1, relief=FLAT, height=30, bg=color['inputBG'])
         self.deleteButton = Button(
             self.frmButton,
             text='Reset',
             command=lambda:MsgInformation([], ['Message', 'Not available']),
             underline=0,
-            bg=tabColor)
+            bg=color['tab'])
         self.deleteButton.config(anchor=E)
         self.deleteButton.pack(side=TOP, fill=X, padx=5, pady=5)
 
@@ -428,7 +449,7 @@ class modeInput(Frame):
                     anchor=E,
                     width=20,
                     bg='white',
-                    fg=colorInputEntry,
+                    fg=color['inputEntry'],
                     font=('Helvetica', sizeInputEntry, 'bold'))
                 entry = Entry(row, textvariable=value['current'], width=60)
                 self.entries.append(entry)
