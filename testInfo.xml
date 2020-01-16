@@ -1,0 +1,57 @@
+<project name="testInfo">
+   <comments>XData from testInfo.xml</comments>
+   <!-- Comments? -->
+   <!-- Settings? -->
+
+   <projectInfo>
+   <!--
+      <numModels>3</numModels>
+   -->
+      <numParams>0</numParams>
+      <numParamsActive>0</numParamsActive>
+      <numParamsInactive>0</numParamsInactive>
+      <numObs>1 </numObs>      
+   </projectInfo>
+
+   <modelInfo name="XMy Model (1)">
+      <simulator>TOUGH2</simulator>
+      <modelNumber>1</modelNumber>
+      <input-dir></input-dir>
+      <input-file>Xext-model1-file1.txt</input-file>
+      <input-file>Xext-model1-file2.txt</input-file>
+      <comment>Comments about testinfo.xml model</comment>
+   </modelInfo>
+   <modelInfo name="My Model (2)">
+      <simulator>TOUGHREACT</simulator>
+      <modelNumber>1</modelNumber>
+      <input-dir></input-dir>
+      <input-file>Xext-model2-file1.txt</input-file>
+      <input-file>Xext-model2-file2.txt</input-file>
+   </modelInfo>
+
+   <modelInfo name="XMy Model (3)">
+      <simulator>XTOUGH2</simulator>
+      <input-dir></input-dir>
+      <input-file>Xext-model3-file1.txt</input-file>
+      <input-file>Xext-model3-file2.txt</input-file>
+   </modelInfo>
+   <!--
+   -->
+
+   <paramInfo>
+      <numParams>0</numParams>
+      <param name="Parameter 1"/>
+      <isActive>True</isActive>
+   </paramInfo>
+
+   <compInfo>
+      <applicationMode>Forward simulation</applicationMode>
+   </compInfo>
+
+   <!-- Available results, names of output files? -->
+   <results>
+      <file>Tst1</file>
+      <file>Tst2</file>
+      <file>Tst3</file>
+   </results>
+</project>

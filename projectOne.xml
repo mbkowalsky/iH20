@@ -1,0 +1,34 @@
+<project name="My Project">
+   <comments>Data from projectInfo.xml</comments>
+   <!-- Comments? -->
+   <!-- Settings? -->
+
+   <projectInfo>
+   </projectInfo>
+
+   <modelInfo name="My Model (1)">
+      <modelNumber>1</modelNumber>
+      <simulator>TOUGH2</simulator>
+      <input-dir></input-dir>
+      <input-file>ext-model1-file1.txt</input-file>
+      <input-file>ext-model1-file2.txt</input-file>
+      <comment>Comments about the first model</comment>
+   </modelInfo>
+
+   <paramInfo>
+   </paramInfo>
+
+   <computations-info>
+      <application-mode>forward</application-mode>
+      <iterations>2</iterations>
+      <incomplete>2</incomplete>
+      <levenberg>2</levenberg>
+      <marquardt>12</marquardt>
+      <generic>1</generic>
+      <comment>Comments about the computational parameters</comment>
+   </computations-info>
+
+   <!-- Available results, names of output files? -->
+   <results>
+   </results>
+</project>

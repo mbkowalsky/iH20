@@ -1,0 +1,45 @@
+<project name="My Project">
+   <comments>Data from projectInfo.xml</comments>
+   <!-- Comments? -->
+   <!-- Settings? -->
+
+   <projectInfo>
+      <numModels>0</numModels>
+      <numParams>0</numParams>
+      <numParamsActive>0</numParamsActive>
+      <numParamsInactive>0</numParamsInactive>
+      <numObs>0 </numObs>      
+   </projectInfo>
+
+   <modelInfo name="My Model (1)">
+      <modelNumber>1</modelNumber>
+      <simulator>TOUGH2</simulator>
+      <input-dir></input-dir>
+      <input-file>ext-model1-file1.txt</input-file>
+      <input-file>ext-model1-file2.txt</input-file>
+      <comment>Comments about the first model</comment>
+   </modelInfo>
+   <modelInfo name="My Model (2)">
+      <modelNumber>2</modelNumber>
+      <simulator>TOUGHREACT</simulator>
+      <input-dir></input-dir>
+      <input-file>ext-model2-file1.txt</input-file>
+      <input-file>ext-model2-file2.txt</input-file>
+      <comment>Comments about the second model</comment>
+   </modelInfo>
+
+   <paramInfo>
+      <numParams>0</numParams>
+      <param name="Parameter 1"/>
+      <isActive>True</isActive>
+   </paramInfo>
+
+   <computations-info>
+      <application-mode>forward</application-mode>
+   </computations-info>
+
+   <!-- Available results, names of output files? -->
+   <results>
+      <file> it2.out</file>
+   </results>
+</project>
