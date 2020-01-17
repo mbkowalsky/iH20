@@ -371,7 +371,9 @@ class CompInputContainer(Frame):
         compModeOptions = VarProj.compVar['application-mode']['optionList']
         print('MBK comp options:', compModeOptions)
         if VarProj.compVar['application-mode']['current'].get()=='':
-            VarProj.compVar['application-mode']['current'].set('Forward simulation')
+           #VarProj.compVar['application-mode']['current'].set('Forward simulation')
+            VarProj.compVar['application-mode']['current'].set(
+            VarProj.compVar['application-mode']['default'].get())
         self.simulatorMenu = OptionMenu(row, 
             VarProj.compVar['application-mode']['current'], 
             *compModeOptions,
