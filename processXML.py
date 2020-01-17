@@ -8,31 +8,75 @@ import os
 
 def readXML(VarProj, VarMod):
 
-    path = os.path.join(VarProj.dir.get(), VarProj.filename.get())
+    path = os.path.join(
+        VarProj.projVar['directory']['current'].get(), 
+        VarProj.projVar['file-name']['current'].get())
+
     with open(path) as fd:
+        # Main dict with info from XML file:
         dat = xmltodict.parse(fd.read())
+
+    multiElement = [
+        'project-info', 
+        'computations-info'
+    ]
+    multiVar = [
+        VarProj.projVar, 
+        VarProj.compVar
+    ]
+
+    for tabNum in range(len(multiVar)):
+
+        mainElement = multiElement[tabNum]   
+        genVar = multiVar[tabNum]
+        print('>Reading', mainElement)
+
+        # Cycle through each key and look for it in xml file 
+        for var in genVar:
+            print(' >>>Reading keyword:', var)
+            try:
+                selectOptions = genVar[var].get('optionList')
+            except:
+                selectOptions = []
+
+            entry = dat[rootElement][mainElement].get(var)
+            if entry: #keyword was found in xml file
+                if selectOptions == None:  
+                    print("    'optionList' was not found")
+                    genVar[var]['current'].set(entry)
+
+                elif selectOptions == []:
+                    print("    'optionList' has no entries")
+                    print('     entry found:', entry)
+                    genVar[var]['current'].set(entry)
+                else:
+                    print("    'optionList' entries:")
+                    value = []
+                    for key, tkval in selectOptions.items():
+                        if tkval == entry:
+                            value = key
+                    if value:
+                        print('    Option found in list:', value)
+                        genVar[var]['current'].set(value)
+                    else:
+                        print('   No option found for this entry:', entry)
+                        MsgInformation(
+                            [],
+                            ['Message',
+                             ('No option found for this entry:'+entry)
+                            ])
+            else:
+                print('    Keyword not found in xml file:', var)
+
+        # Print entire dictionary to screen:  
+       #printDict(VarProj.compVar)
+
+#Everything below here is to be removed/redone differently:
     modelNames = []
     modelNumbers= []
     modelComments = []
     simulatorNames = []
     modelInputFiles = []
-
-# Project
-    rootAttribute = '@name'
-    try:
-        VarProj.name.set(dat[rootElement][rootAttribute])
-
-   #MBK!!! Experimenting with handling xml reading errors...
-   #       Note xmltodict error not caught if "=" and quotes missing
-    except (KeyError, TypeError) as info:
-        print('XML msg:', info)
-        MsgInformation(
-            [],
-            ['Message',
-             'Missing root attribute "'+rootAttribute+'" in xml file'
-            ])
-
-    VarProj.comment.set(dat[rootElement]['comments'])
 
 # Model Setup
     modelElement = 'modelInfo'
@@ -99,61 +143,6 @@ def readXML(VarProj, VarMod):
         VarMod[i].comment.set(modelComments[i])
         VarMod[i].simulator.set(simulatorNames[i])
     VarProj.numMod.set(numModels)
-
-    multiElement = [
-        'project-info', 
-        'computations-info'
-    ]
-    multiVar = [
-        VarProj.projVar, 
-        VarProj.compVar
-    ]
-
-    for tabNum in range(len(multiVar)):
-
-        mainElement = multiElement[tabNum]   
-        genVar = multiVar[tabNum]
-        print('>Reading', mainElement)
-
-        # Cycle through each key and look for it in xml file 
-        for var in genVar:
-            print(' >>>Reading keyword:', var)
-            try:
-                selectOptions = genVar[var].get('optionList')
-            except:
-                selectOptions = []
-
-            entry = dat[rootElement][mainElement].get(var)
-            if entry: #keyword was found in xml file
-                if selectOptions == None:  
-                    print("    'optionList' was not found")
-                    genVar[var]['current'].set(entry)
-
-                elif selectOptions == []:
-                    print("    'optionList' has no entries")
-                    print('     entry found:', entry)
-                    genVar[var]['current'].set(entry)
-                else:
-                    print("    'optionList' entries:")
-                    value = []
-                    for key, tkval in selectOptions.items():
-                        if tkval == entry:
-                            value = key
-                    if value:
-                        print('    Option found in list:', value)
-                        genVar[var]['current'].set(value)
-                    else:
-                        print('   No option found for this entry:', entry)
-                        MsgInformation(
-                            [],
-                            ['Message',
-                             ('No option found for this entry:'+entry)
-                            ])
-            else:
-                print('    Keyword not found in xml file:', var)
-
-        # Print entire dictionary to screen:  
-       #printDict(VarProj.compVar)
 
 # Results
     try:

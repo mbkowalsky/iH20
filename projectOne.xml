@@ -6,8 +6,8 @@
    <project-info>
       <directory>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</directory>
       <file-name>projectOne.xml</file-name>
-      <project-name>Project</project-name>
-      <comment>Data from projectInfo.xml X </comment>
+      <project-name>My Project</project-name>
+      <comment>Data from projectInfo.xml</comment>
    </project-info>
 
    <modelInfo name="My Model (1)">

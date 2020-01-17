@@ -39,24 +39,19 @@ if __name__ == '__main__':
             Frame.__init__(self, parent)
             self.frm = []
 
-            self.dir = StringVar()
-            self.file = StringVar()
-            self.filename = StringVar()
-            self.name = StringVar()
-            self.comment = StringVar()
-            self.status = StringVar()
-            self.numMod = IntVar()
-            self.mNum = IntVar()
+#Deleting as these get pulled into dictionaries
             self.numPar = StringVar(value=0)
             self.numActivePar = StringVar(value=0)
             self.numInactivePar = StringVar(value=0)
             self.numObs = StringVar(value=0)
-            self.results = StringVar()
+            self.numMod = IntVar()
+            self.mNum = IntVar()
             self.models = StringVar()
             self.modelComment = StringVar()
             self.inputFiles = StringVar()
             self.editMode = StringVar()
             self.editMode.set('Debug mode')
+            self.results = StringVar()
 
             # Workflow control
             self.editButtonStatus = {
@@ -87,7 +82,7 @@ if __name__ == '__main__':
                'file-name': {
                     'label': 'Project filename:',
                     'optionList': [],
-                    'default': [],
+                    'default': 'My File',
                     'previous': [],
                     'current': StringVar()},
                'project-name': {
@@ -252,7 +247,7 @@ if __name__ == '__main__':
                     #setStatus(VarProj, VarMod)
 
                     if selectedTab.get() == 'Project':
-                        if not VarProj.filename.get()=="":
+                        if not VarProj.projVar['file-name']['current'].get()=="":
                             tabProjectInfo.editButton['state'] = 'active'
                             tabModelInfo.editButton['state'] = 'active'
                            #VarProj.statProj.set(True)
@@ -370,13 +365,13 @@ if __name__ == '__main__':
 # Information, Input, Controls
 
     datInfoSummary = [
-        ('Project Name:', VarProj.name),
+        ('Project Name:', VarProj.projVar['project-name']['current']),
         ('Models:',       VarProj.numMod),
         ('Parameters:',   VarProj.numPar),
         ('Observations:', VarProj.numObs),
         ('Application:',  VarProj.compVar['application-mode']['current']),
         ('Results:',      VarProj.results),
-        ('Comments:',     VarProj.comment)
+        ('Comments:',     VarProj.projVar['comment']['current'])
         ]
 
     # Frames for Information

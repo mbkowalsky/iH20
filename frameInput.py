@@ -48,22 +48,6 @@ class ProjectContainer(Frame):
             width=0)
         self.optionsOpenProject = Menu(self.menuOpenProject)
 
-#MBK!!!: currently calling different function for opening file?
-        self.optionsOpenProject.add_command(
-            label='New', 
-            command=lambda:openProject(VarProj, VarMod, 'New'))
-        self.optionsOpenProject.add_command(
-            label='Open from file', 
-            command=lambda:openProject(VarProj, VarMod, []))
-        self.optionsOpenProject.add_command(
-            label='Open test',
-           #command=MsgNotImplemented)
-            command=lambda:openProject(VarProj, VarMod, 'Open test'))
-        self.optionsOpenProject.add_command(
-            label='Open watershed demo',
-            command=MsgNotImplemented)
-        self.menuOpenProject.config(menu=self.optionsOpenProject)
-
         self.nameLabel = Label(
             self.frmLabelMenu,
             text='Project option:',
@@ -82,57 +66,47 @@ class ProjectContainer(Frame):
         self.frmProjectInfo.pack(side=LEFT, fill=X, expand=YES)
         self.frmProjectInfo.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
-        # Add labels and entries for a model:
-        self.entries = []
-        for (label, value) in VarProj.projVar.items():
-           #if not label == 'application-mode':
-            if value['current'].get():
-                row = Frame(self.frmProjectInfo)
-                lab = Label(row,
-                    text=value['label'],
-                    justify=RIGHT,
-                    anchor=E,
-                    width=40,
-                    bg='white',
-                    fg=color['inputEntry'],
-                    font=('Helvetica', sizeInputEntry, 'bold'))
-                ent = Entry(row, textvariable=value['current'])
-                row.pack(side=TOP, fill=X)
-                ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-                lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
-                self.entries.append(ent)
- 
-                """
-                row = Frame(self.frmProjectInfo)
-                lab = Label(row,
-                    text=value['label'],
-                    justify=RIGHT,
-                    anchor=E,
-                    width=20,
-                    bg='white',
-                    fg=color['inputEntry'],
-                    font=('Helvetica', sizeInputEntry, 'bold'))
-                entry = Entry(row, textvariable=value['current'], width=60)
-                self.entries.append(entry)
-                row.pack(side=TOP, fill=X)
-                entry.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-                lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
-                """
+#MBK!!!: currently calling different function for opening file?
+        self.optionsOpenProject.add_command(
+            label='New', 
+            command=lambda:openProject(VarProj, VarMod, 'New', self.frmProjectInfo))
+        self.optionsOpenProject.add_command(
+            label='Open from file', 
+            command=lambda:openProject(VarProj, VarMod, [], self.frmProjectInfo))
+        self.optionsOpenProject.add_command(
+            label='Open test',
+            command=lambda:openProject(VarProj, VarMod, 'Open test', self.frmProjectInfo))
+        self.optionsOpenProject.add_command(
+            label='Open watershed demo',
+            command=MsgNotImplemented)
+        self.menuOpenProject.config(menu=self.optionsOpenProject)
 
-#MBK!!! Keeping record of fetch button and def for now
-#       tmp = Button(self.frmProjectInfo, text='Fetch', 
-#                 command= (lambda: onFetch(VarProj, self.entries)))
-#       tmp.pack(side=RIGHT, padx=10)
-#def onFetch(VarProj, ents):
-#    VarProj.name.set(ents[0].get())
-#    VarProj.comment.set(ents[1].get())
+        makeProjectLabels(VarProj, self.frmProjectInfo)
 
-def openProject(VarProj, VarMod, fileNameIn):
+def makeProjectLabels(VarProj, frmIn):
+    for (label, value) in VarProj.projVar.items():
+        if value['current'].get():
+           #row = Frame(self.frmProjectInfo)
+            row = Frame(frmIn)
+            lab = Label(row,
+                text=value['label'],
+                justify=RIGHT,
+                anchor=E,
+                width=40,
+                bg='white',
+                fg=color['inputEntry'],
+                font=('Helvetica', sizeInputEntry, 'bold'))
+            ent = Entry(row, textvariable=value['current'])
+            row.pack(side=TOP, fill=X)
+            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+
+def openProject(VarProj, VarMod, fileNameIn, frmIn):
     if fileNameIn == 'New':
         dirName = filedialog.askdirectory()
         if dirName:
-            VarProj.dir.set(dirName)
-       #fileName = os.path.join(dirName, 'new.xml')
+            VarProj.projVar['directory']['current'].set(dirName)
+
     elif fileNameIn == 'Open test':
         path = os.path.join(dirRecent, fileRecent)
         dirName = os.path.dirname(path)
@@ -142,18 +116,44 @@ def openProject(VarProj, VarMod, fileNameIn):
             initialdir = ".",
             title = "Select file",
             filetypes = (("xml files","*.xml"),("jpeg files","*.jpg"))
-            ) 
+        ) 
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)        
     if dirName and not fileNameIn == 'New':
-        VarProj.filename.set(fileName)
-        VarProj.dir.set(dirName)
+        VarProj.projVar['file-name']['current'].set(fileName)
+        VarProj.projVar['directory']['current'].set(dirName)
         readXML(VarProj, VarMod)
     elif dirName and fileNameIn == 'New':
-        VarProj.filename.set(defaultProjFilename)
-        VarProj.name.set(defaultProjName)
+        for name in ['file-name', 'project-name']:
+            VarProj.projVar[name]['current'].set(
+            VarProj.projVar[name]['default'])
+        # Populate input entry boxes:
+        makeProjectLabels(VarProj, frmIn)
+
     else:
         MsgNotImplemented([], ['Message', 'Cancelled'])
+
+    """
+    # Add labels and entries for a model:
+    for (label, value) in VarProj.projVar.items():
+       #if not label == 'application-mode':
+        if value['current'].get():
+           #row = Frame(self.frmProjectInfo)
+            row = Frame(frmIn)
+            lab = Label(row,
+                text=value['label'],
+                justify=RIGHT,
+                anchor=E,
+                width=40,
+                bg='white',
+                fg=color['inputEntry'],
+                font=('Helvetica', sizeInputEntry, 'bold'))
+            ent = Entry(row, textvariable=value['current'])
+            row.pack(side=TOP, fill=X)
+            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+    """
+
 
 def addFile(frm, VarProj, VarMod, i, loadExisting):
     if loadExisting == FALSE:
@@ -292,7 +292,6 @@ class AddModel(Frame):
             ]
 
         # Add labels and entries for a model:
-        self.entries = []
         for (label, value) in datModel:
             row = Frame(self.frmInput)
             lab = Label(row,
@@ -304,7 +303,6 @@ class AddModel(Frame):
                 fg=color['inputEntry'],
                 font=('Helvetica', sizeInputEntry, 'bold'))
             entry = Entry(row, textvariable=value, width=60)
-            self.entries.append(entry)
             row.pack(side=TOP, fill=X)
             entry.pack(side=RIGHT, expand=YES, fill=X, padx=10)
             lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
@@ -438,7 +436,6 @@ class modeInput(Frame):
         self.deleteButton.pack(side=TOP, fill=X, padx=5, pady=5)
 
         # Add labels and entries for a model:
-        self.entries = []
         for (label, value) in VarProj.compVar.items():
            #if not label == 'application-mode':
             if not label == 'application-mode' and value['current'].get():
@@ -452,7 +449,6 @@ class modeInput(Frame):
                     fg=color['inputEntry'],
                     font=('Helvetica', sizeInputEntry, 'bold'))
                 entry = Entry(row, textvariable=value['current'], width=60)
-                self.entries.append(entry)
                 row.pack(side=TOP, fill=X)
                 entry.pack(side=RIGHT, expand=YES, fill=X, padx=10)
                 lab.pack(side=LEFT, expand=NO, fill=X, padx=10)

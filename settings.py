@@ -94,8 +94,8 @@ dirRecent = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1'
 fileRecent = 'projectInfo.xml'
 fileRecent = 'projectOne.xml'
 initialDirAddFile = '.'
-defaultProjName = 'My Project'
-defaultProjFilename = 'untitled.xml'
+#defaultProjName = 'My Project'
+#defaultProjFilename = 'untitled.xml'
 
 
 

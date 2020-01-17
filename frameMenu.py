@@ -73,12 +73,11 @@ class MainMenu(Frame):
             VarProj.editButtonStatus['computations'].set('active')
 
     def onClickOpen(self, VarProj, VarMod):
-       #openProject(VarProj,[])
-        openProject(VarProj, VarMod, [])
+        openProject(VarProj, VarMod, [], [])
 
     def onClickOpenTest(self, VarProj, VarMod):
         path = os.path.join(dirRecent, fileRecent)
-        openProject(VarProj, VarMod, 'Open test')
+        openProject(VarProj, VarMod, 'Open test', [])
 
     # MBK!!!: Toolbar images not doing anything
     def imageMenu(self):
