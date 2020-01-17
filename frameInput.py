@@ -127,32 +127,17 @@ def openProject(VarProj, VarMod, fileNameIn, frmIn):
         for name in ['file-name', 'project-name']:
             VarProj.projVar[name]['current'].set(
             VarProj.projVar[name]['default'])
+ 
+        # Give compVar default values since new project
+        for name in VarProj.compVar:
+            VarProj.compVar[name]['current'].set(
+            VarProj.compVar[name]['default'])
+
         # Populate input entry boxes:
         makeProjectLabels(VarProj, frmIn)
 
     else:
         MsgNotImplemented([], ['Message', 'Cancelled'])
-
-    """
-    # Add labels and entries for a model:
-    for (label, value) in VarProj.projVar.items():
-       #if not label == 'application-mode':
-        if value['current'].get():
-           #row = Frame(self.frmProjectInfo)
-            row = Frame(frmIn)
-            lab = Label(row,
-                text=value['label'],
-                justify=RIGHT,
-                anchor=E,
-                width=40,
-                bg='white',
-                fg=color['inputEntry'],
-                font=('Helvetica', sizeInputEntry, 'bold'))
-            ent = Entry(row, textvariable=value['current'])
-            row.pack(side=TOP, fill=X)
-            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
-    """
 
 
 def addFile(frm, VarProj, VarMod, i, loadExisting):
@@ -384,6 +369,9 @@ class CompInputContainer(Frame):
             font=('Helvetica', sizeInputEntry, 'bold'))
 
         compModeOptions = VarProj.compVar['application-mode']['optionList']
+        print('MBK comp options:', compModeOptions)
+        if VarProj.compVar['application-mode']['current'].get()=='':
+            VarProj.compVar['application-mode']['current'].set('Forward simulation')
         self.simulatorMenu = OptionMenu(row, 
             VarProj.compVar['application-mode']['current'], 
             *compModeOptions,
@@ -407,6 +395,7 @@ class CompInputContainer(Frame):
        #pass
        #if VarProj.compVar['application-mode']['current'].get() == 'Forward simulation':
         modeInput(self, VarProj, VarMod)
+        print('MBK')
 
 class modeInput(Frame):
     """Create subframe in CompInputContainer for selected application mode.
