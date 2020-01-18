@@ -39,6 +39,8 @@ if __name__ == '__main__':
             Frame.__init__(self, parent)
             self.frm = []
 
+            self.typeProj = StringVar(value='Unknown')
+            self.inputLabelsCreated = BooleanVar(value=False)
 #Deleting as these get pulled into dictionaries
             self.numPar = StringVar(value=0)
             self.numActivePar = StringVar(value=0)
@@ -352,7 +354,86 @@ if __name__ == '__main__':
          [('iH2O Help',   0, lambda:help()),
           ('Support',     0, lambda:support())]) ]
 
-    frmMainMenu = MainMenu(root, menuOptions, VarProj, VarMod)
+
+# Expbeg Moving MainMenu class to defs here, so can call defs in main file:
+#class MainMenu(Frame):
+    """Creates main menu, and tool bar.
+    """
+
+   #def __init__(self, parent=None, menuOptions=[], VarProj=[], VarMod=[]):
+    def mainMenu(FrameIn, menuOptions, VarProj, VarMod):
+        frm = Frame(FrameIn)
+        frm.pack(expand=YES, fill=BOTH)
+        frm.master.title('iH2O')
+        frm.master.iconbitmap(bitmap='gray50')
+        menubar = Menu(frm.master)
+        frm.master.config(menu=menubar)
+
+        for (name, key, items) in menuOptions:
+            pulldown = Menu(menubar)
+            for (namesub, keysub, itemssub) in items:
+                pulldown.add_command(label=namesub, command=itemssub)
+                menubar.add_cascade(
+                label=name,
+                underline=key,
+                menu=pulldown)
+
+        toolbar = Frame(frm, relief=GROOVE, bd=1)
+        toolbar.pack(side=BOTTOM, fill=X, pady=0)
+        toolbarOptions = [
+
+            ('Open', 0, lambda:onClickOpen(VarProj, VarMod)),
+            ('Open test', 0, lambda:onClickOpenTest(VarProj, VarMod)),
+            ('Quit', 0, frm.quit)
+            ]
+
+        toolbarButtons = []
+        for (name, key, item) in toolbarOptions:
+            toolbarButton = Button(
+                toolbar,
+                text=name,
+                command=item)
+            toolbarButton.pack(side=LEFT, expand=NO, fill=NONE)
+            toolbarButtons.append(toolbarButton)
+
+        editMode = [
+            'Normal mode',
+            'Debug mode'
+            ]
+            
+#       simulatorMenu = OptionMenu(toolbar, VarProj.editMode, *editMode,
+#           command=setEditMode(VarProj.editMode, VarProj, VarMod))
+#       simulatorMenu.config(
+#           justify=LEFT,
+#           underline=0)
+#       simulatorMenu.pack(side=LEFT, fill=X, padx=10, pady=5)
+
+#       # MBK!!!: Toolbar button/images need functions/commands and correct images
+#       tst=imageMenu()
+#       for obj in photoObjs:
+#           bt = Button(toolbar, image=obj, command=msgNotImplemented)
+#           bt.pack(side=RIGHT, expand=NO, fill=NONE)
+
+#MBK!!! prob don't need this call, possible just to editProject() from above
+        def onClickOpen(VarProj, VarMod):
+           #openProject(VarProj, VarMod, [], [])
+            VarProj.typeProj.set('Open')
+            editProject()
+
+        def onClickOpenTest(VarProj, VarMod):
+            path = os.path.join(dirRecent, fileRecent)
+           #openProject(VarProj, VarMod, 'Open test')
+           #VarProj.projVar['file-name']['current'].set(
+           #    'projectOne.xml')
+           #VarProj.projVar['directory']['current'].set(
+           #    '/Users/mbkowalsky/mikek/work/software/python/py2app_v1')
+            VarProj.typeProj.set('Open test') 
+            print('MBK: typeProj:', VarProj.typeProj.get())
+            editProject()
+   
+# Expend
+   #frmMainMenu = MainMenu(root, menuOptions, VarProj, VarMod)
+    frmMainMenu = mainMenu(root, menuOptions, VarProj, VarMod)
     frmInfoGlobal = FrameContainer()         
 
 #MBK!!! Need to implement tool for opening and displaying text file???
@@ -361,9 +442,10 @@ if __name__ == '__main__':
         ('Choose image', lambda:frmCanvas.onChoose()),
         ('Choose file', lambda:msgUnavailable())
         ]
-   
+
 # Information, Input, Controls
 
+# MBK!!! to be swapped out with new dictionary references, as developed
     datInfoSummary = [
         ('Project Name:', VarProj.projVar['project-name']['current']),
         ('Models:',       VarProj.numMod),

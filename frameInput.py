@@ -66,26 +66,39 @@ class ProjectContainer(Frame):
         self.frmProjectInfo.pack(side=LEFT, fill=X, expand=YES)
         self.frmProjectInfo.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
 
-#MBK!!!: currently calling different function for opening file?
         self.optionsOpenProject.add_command(
             label='New', 
-            command=lambda:openProject(VarProj, VarMod, 'New', self.frmProjectInfo))
+            command=lambda: onClickProjectMenu(
+                VarProj, 
+                VarMod, 
+                'New', 
+                self.frmProjectInfo))
         self.optionsOpenProject.add_command(
             label='Open from file', 
-            command=lambda:openProject(VarProj, VarMod, [], self.frmProjectInfo))
+            command=lambda: onClickProjectMenu(
+                VarProj, 
+                VarMod, 
+                'Open',
+                self.frmProjectInfo))
         self.optionsOpenProject.add_command(
             label='Open test',
-            command=lambda:openProject(VarProj, VarMod, 'Open test', self.frmProjectInfo))
-        self.optionsOpenProject.add_command(
-            label='Open watershed demo',
-            command=MsgNotImplemented)
+            command=lambda: onClickProjectMenu(
+                VarProj, 
+                VarMod, 
+                'Open test', 
+                self.frmProjectInfo))
         self.menuOpenProject.config(menu=self.optionsOpenProject)
 
-        makeProjectLabels(VarProj, self.frmProjectInfo)
+        if VarProj.typeProj.get()=='Open test':
+            openProject(VarProj, VarMod, 'Open test', self.frmProjectInfo)
+
+def onClickProjectMenu(VarProj, VarMod, typeIn, frmIn):
+    VarProj.typeProj.set(typeIn)
+    openProject(VarProj, VarMod, typeIn, frmIn)
 
 def makeProjectLabels(VarProj, frmIn):
     for (label, value) in VarProj.projVar.items():
-        if value['current'].get():
+       #if value['current'].get():
            #row = Frame(self.frmProjectInfo)
             row = Frame(frmIn)
             lab = Label(row,
@@ -100,18 +113,21 @@ def makeProjectLabels(VarProj, frmIn):
             row.pack(side=TOP, fill=X)
             ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
             lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+    VarProj.inputLabelsCreated.set(True)
 
 def openProject(VarProj, VarMod, fileNameIn, frmIn):
-    if fileNameIn == 'New':
+    print('MBK what have I done', VarProj.typeProj.get())
+    if VarProj.typeProj.get() == 'New':
         dirName = filedialog.askdirectory()
         if dirName:
             VarProj.projVar['directory']['current'].set(dirName)
 
-    elif fileNameIn == 'Open test':
+    elif VarProj.typeProj.get() == 'Open test':
         path = os.path.join(dirRecent, fileRecent)
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)
-    else:
+
+    elif VarProj.typeProj.get() == 'Open':
         path = filedialog.askopenfilename(
             initialdir = ".",
             title = "Select file",
@@ -119,11 +135,31 @@ def openProject(VarProj, VarMod, fileNameIn, frmIn):
         ) 
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)        
-    if dirName and not fileNameIn == 'New':
+
+    elif VarProj.typeProj.get() == 'Unknown':
+        makeProjectLabels(VarProj, frmIn)
+        dirName = []
+    else: 
+        path = os.path.join(dirRecent, fileRecent)
+        dirName = os.path.dirname(path)
+        fileName = os.path.basename(path)
+#MBK!!! EXPERIMENTING HERE
+        makeProjectLabels(VarProj, frmIn)
+
+    if not dirName and VarProj.typeProj.get() == 'Unknown':
+#       makeProjectLabels(VarProj, frmIn)
+        pass
+    elif dirName and not VarProj.typeProj.get() == 'New': # If Open or Open test?
         VarProj.projVar['file-name']['current'].set(fileName)
         VarProj.projVar['directory']['current'].set(dirName)
+        print(VarProj.projVar['file-name']['current'].get(),
+              VarProj.projVar['directory']['current'].get())
         readXML(VarProj, VarMod)
-    elif dirName and fileNameIn == 'New':
+
+        # Populate input entry boxes:
+#       makeProjectLabels(VarProj, frmIn)
+
+    elif dirName and VarProj.typeProj.get() == 'New':
         for name in ['file-name', 'project-name']:
             VarProj.projVar[name]['current'].set(
             VarProj.projVar[name]['default'])
@@ -133,12 +169,9 @@ def openProject(VarProj, VarMod, fileNameIn, frmIn):
             VarProj.compVar[name]['current'].set(
             VarProj.compVar[name]['default'])
 
-        # Populate input entry boxes:
+    # Populate input entry boxes:
+    if VarProj.inputLabelsCreated.get() == False:
         makeProjectLabels(VarProj, frmIn)
-
-    else:
-        MsgNotImplemented([], ['Message', 'Cancelled'])
-
 
 def addFile(frm, VarProj, VarMod, i, loadExisting):
     if loadExisting == FALSE:
@@ -369,11 +402,10 @@ class CompInputContainer(Frame):
             font=('Helvetica', sizeInputEntry, 'bold'))
 
         compModeOptions = VarProj.compVar['application-mode']['optionList']
-        print('MBK comp options:', compModeOptions)
         if VarProj.compVar['application-mode']['current'].get()=='':
-           #VarProj.compVar['application-mode']['current'].set('Forward simulation')
-            VarProj.compVar['application-mode']['current'].set(
-            VarProj.compVar['application-mode']['default'].get())
+            for name in VarProj.compVar:
+                VarProj.compVar[name]['current'].set(
+                VarProj.compVar[name]['default'])
         self.simulatorMenu = OptionMenu(row, 
             VarProj.compVar['application-mode']['current'], 
             *compModeOptions,
@@ -389,15 +421,9 @@ class CompInputContainer(Frame):
         row.pack(side=TOP, fill=X)
         self.simulatorMenu.pack(side=RIGHT, fill=X, padx=10, pady=5)
         label.pack(side=LEFT, expand=NO, fill=X, padx=10)
-#       test.pack(side=LEFT, expand=NO, fill=X, padx=10)
 
-#MBK!!! need to come back to this for input popping up in comp
     def makeCompInput(self, selectedMode, VarProj, VarMod):
-
-       #pass
-       #if VarProj.compVar['application-mode']['current'].get() == 'Forward simulation':
         modeInput(self, VarProj, VarMod)
-        print('MBK')
 
 class modeInput(Frame):
     """Create subframe in CompInputContainer for selected application mode.

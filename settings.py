@@ -91,7 +91,7 @@ sizeThumbs = (30,30)
 
 # Info for loading recent project (???hardwired for now)
 dirRecent = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1'
-fileRecent = 'projectInfo.xml'
+#fileRecent = 'projectInfo.xml'
 fileRecent = 'projectOne.xml'
 initialDirAddFile = '.'
 #defaultProjName = 'My Project'
