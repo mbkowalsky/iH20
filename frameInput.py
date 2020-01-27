@@ -81,16 +81,22 @@ class ProjectContainer(Frame):
                 'Open',
                 self.frmProjectInfo))
         self.optionsOpenProject.add_command(
-            label='Open test',
+            label='Open demo',
             command=lambda: onClickProjectMenu(
                 VarProj, 
                 VarMod, 
-                'Open test', 
+                'Open demo', 
                 self.frmProjectInfo))
         self.menuOpenProject.config(menu=self.optionsOpenProject)
 
-        if VarProj.typeProj.get()=='Open test':
-            openProject(VarProj, VarMod, 'Open test', self.frmProjectInfo)
+        # Project files aleady specified, special case in openProject:
+        if VarProj.typeProj.get()=='Open demo':
+            openProject(VarProj, VarMod, 'Open demo', self.frmProjectInfo)
+     
+        # Parameters loaded previously, just populate entries:
+# MBK!!! May rename inputLabelsCreated 
+        if VarProj.inputLabelsCreated.get() == True:
+            makeProjectLabels(VarProj, self.frmProjectInfo)
 
 def onClickProjectMenu(VarProj, VarMod, typeIn, frmIn):
     VarProj.typeProj.set(typeIn)
@@ -99,7 +105,6 @@ def onClickProjectMenu(VarProj, VarMod, typeIn, frmIn):
 def makeProjectLabels(VarProj, frmIn):
     for (label, value) in VarProj.projVar.items():
        #if value['current'].get():
-           #row = Frame(self.frmProjectInfo)
             row = Frame(frmIn)
             lab = Label(row,
                 text=value['label'],
@@ -116,13 +121,16 @@ def makeProjectLabels(VarProj, frmIn):
     VarProj.inputLabelsCreated.set(True)
 
 def openProject(VarProj, VarMod, fileNameIn, frmIn):
-    print('MBK what have I done', VarProj.typeProj.get())
+
+    # Set directory and filename depending on typeProj
     if VarProj.typeProj.get() == 'New':
         dirName = filedialog.askdirectory()
         if dirName:
             VarProj.projVar['directory']['current'].set(dirName)
-
-    elif VarProj.typeProj.get() == 'Open test':
+        else:
+            VarProj.projVar['directory']['current'].set('')
+            
+    elif VarProj.typeProj.get() == 'Open demo':
         path = os.path.join(dirRecent, fileRecent)
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)
@@ -136,41 +144,36 @@ def openProject(VarProj, VarMod, fileNameIn, frmIn):
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)        
 
-    elif VarProj.typeProj.get() == 'Unknown':
-        makeProjectLabels(VarProj, frmIn)
-        dirName = []
     else: 
+# MBK!!! will these get used when calling from toolbar
         path = os.path.join(dirRecent, fileRecent)
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)
-#MBK!!! EXPERIMENTING HERE
         makeProjectLabels(VarProj, frmIn)
 
-    if not dirName and VarProj.typeProj.get() == 'Unknown':
-#       makeProjectLabels(VarProj, frmIn)
-        pass
-    elif dirName and not VarProj.typeProj.get() == 'New': # If Open or Open test?
+    # Read xml file to open project but not if new or editing project
+    if (dirName and 
+           (VarProj.typeProj.get() in ['Open', 'Open demo'])):
         VarProj.projVar['file-name']['current'].set(fileName)
         VarProj.projVar['directory']['current'].set(dirName)
-        print(VarProj.projVar['file-name']['current'].get(),
-              VarProj.projVar['directory']['current'].get())
         readXML(VarProj, VarMod)
-
-        # Populate input entry boxes:
-#       makeProjectLabels(VarProj, frmIn)
+        # Initial file was read, so change typeProj
+        VarProj.typeProj.set('Editing')
 
     elif dirName and VarProj.typeProj.get() == 'New':
+        # Start with default values since new project
+        # MBK!!! Add other workflow defaults eventually
         for name in ['file-name', 'project-name']:
             VarProj.projVar[name]['current'].set(
             VarProj.projVar[name]['default'])
- 
-        # Give compVar default values since new project
         for name in VarProj.compVar:
             VarProj.compVar[name]['current'].set(
             VarProj.compVar[name]['default'])
 
-    # Populate input entry boxes:
-    if VarProj.inputLabelsCreated.get() == False:
+    # Populate input entry boxes if not done earlier:
+#   if VarProj.inputLabelsCreated.get() == False:
+    if (VarProj.inputLabelsCreated.get() == False and
+        dirName):
         makeProjectLabels(VarProj, frmIn)
 
 def addFile(frm, VarProj, VarMod, i, loadExisting):

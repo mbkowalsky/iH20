@@ -27,7 +27,8 @@ color = {
     'titleTab': '#f6f6f6',
     'toolbar': '#f6f6f6',
     'canv': 'white',
-    'addModel': 'white'
+    'addModel': 'white',
+    'miniFrame': 'gray90'
 }
 
 # Settings for colors
@@ -85,7 +86,7 @@ initialOpenDirectory = '/Users/mbkowalsky/mikek/photos/2019_12_19_Private_Free_L
 
 # Thumbnail images
 dirThumbs = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1/thumbs' 
-sizeThumbs = (30,30)
+sizeThumbs = (30, 30)
 
 # Variables for output entries in Information
 
@@ -96,8 +97,8 @@ fileRecent = 'projectOne.xml'
 initialDirAddFile = '.'
 #defaultProjName = 'My Project'
 #defaultProjFilename = 'untitled.xml'
-
-
+checkBoxFilename = 'checkbox.png'
+sizeCheckBox = (500, 10)
 
 
 

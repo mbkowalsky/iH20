@@ -2,6 +2,9 @@
 from tkinter           import *
 from settings          import *
 from frameTools        import FrameSeparator
+from PIL               import Image
+from PIL.ImageTk       import PhotoImage
+import os
 
 class WorkflowTab(Frame):
     def __init__(self, parent=None, name=[], key=[], items=[], 
@@ -14,14 +17,11 @@ class WorkflowTab(Frame):
 
         self.frmBoxInner = Frame(self.frmBox)
         self.frmBoxInner.pack(side=TOP, fill=X, expand=YES)
-       #self.frmBoxInner.pack_propagate(0)
-       #self.frmBoxInner.config(bg=colorWorkflow, width=50, height=20)
         self.frmBoxInner.config(bg=colorWorkflow)
            
         self.title = Label(self.frmBoxInner,
             text=name,
             anchor=W,
-           #anchor=NW,
             bg=colorTitleTab,
             fg=tabTitleColor,
             padx=5,
@@ -31,7 +31,6 @@ class WorkflowTab(Frame):
            
         self.editButton = Button(self.frmBoxInner,
             text='Edit',
-#           textvariable=editState,
             command=key,
             underline=0,
             state=editState.get(),
@@ -39,13 +38,39 @@ class WorkflowTab(Frame):
             bg=colorWorkflow)
         self.editButton.pack(side=RIGHT)
 
+# MBK!!! Tried to do checks with different colors, including
+# using images, image= plus selectimage= plus indicatoron=False
+# but not working
+#       path = os.path.join(dirThumbs, 'checkbox.png')
+#       obj = Image.open(path)
+#       obj.thumbnail(sizeCheckBox, Image.ANTIALIAS)
+#      #checkBoxOn = PhotoImage(obj)
+#       checkBoxOn = PhotoImage(file=path)
+#       path = os.path.join(dirThumbs, 'checkbox.red.png')
+#       obj = Image.open(path)
+#       obj.thumbnail(sizeCheckBox, Image.ANTIALIAS)
+#       checkBoxOff = PhotoImage(file=path)
+
+#       self.checkBox = Checkbutton(self.frmBoxInner,
+#           variable=status,
+#           underline=0,
+#           fg=colorWorkLabel,
+#           bg=colorWorkflow,
+#           width=2,
+#           indicatoron=False,
+#           image=checkBoxOff,
+#           selectimage=checkBoxOn,
+#           state=DISABLED, #Not using for input, only to display state
+#           offvalue=0,
+#           onvalue=1)
+#       self.checkBox.pack(side=RIGHT)
+
         self.checkBox = Checkbutton(self.frmBoxInner,
             variable=status,
             underline=0,
             fg=colorWorkLabel,
             bg=colorWorkflow,
             width=2,
-            selectcolor='green',
             state=DISABLED, #Not using for input, only to display state
             offvalue=0,
             onvalue=1)

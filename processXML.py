@@ -25,15 +25,16 @@ def readXML(VarProj, VarMod):
         VarProj.compVar
     ]
 
+    printXML = False
     for tabNum in range(len(multiVar)):
 
         mainElement = multiElement[tabNum]   
         genVar = multiVar[tabNum]
-        print('>Reading', mainElement)
+        if printXML: print('>Reading', mainElement)
 
         # Cycle through each key and look for it in xml file 
         for var in genVar:
-            print(' >>>Reading keyword:', var)
+            if printXML: print(' >>>Reading keyword:', var)
             try:
                 selectOptions = genVar[var].get('optionList')
             except:
@@ -42,34 +43,34 @@ def readXML(VarProj, VarMod):
             entry = dat[rootElement][mainElement].get(var)
             if entry: #keyword was found in xml file
                 if selectOptions == None:  
-                    print("    'optionList' was not found")
+                    if printXML: print("    'optionList' was not found")
                     genVar[var]['current'].set(entry)
 
                 elif selectOptions == []:
-                    print("    'optionList' has no entries")
-                    print('     entry found:', entry)
+                   #print("    'optionList' has no entries")
+                    if printXML: print('     entry found:', entry)
                     genVar[var]['current'].set(entry)
                 else:
-                    print("    'optionList' entries:")
+                    if printXML: print("    'optionList' entries:")
                     value = []
                     for key, tkval in selectOptions.items():
                         if tkval == entry:
                             value = key
                     if value:
-                        print('    Option found in list:', value)
+                        if printXML: print('    Option found in list:', value)
                         genVar[var]['current'].set(value)
                     else:
-                        print('   No option found for this entry:', entry)
+                        if printXML: print('   No option found for this entry:', entry)
                         MsgInformation(
                             [],
                             ['Message',
                              ('No option found for this entry:'+entry)
                             ])
             else:
-                print('    Keyword not found in xml file:', var)
+                if printXML: print('    Keyword not found in xml file:', var)
 
         # Print entire dictionary to screen:  
-       #printDict(VarProj.compVar)
+        if printXML: printDict(VarProj.compVar)
 
 #Everything below here is to be removed/redone differently:
     modelNames = []

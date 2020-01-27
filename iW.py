@@ -2,7 +2,7 @@
 from tkinter            import *
 from tkinter.messagebox import *
 from tkinter            import filedialog
-from frameMenu          import MainMenu
+#from frameMenu          import MainMenu
 from frameToolbar       import FrameToolbar
 from frameInfo          import InfoSubFrame  
 from frameInfo          import InfoTitleMenu
@@ -40,6 +40,7 @@ if __name__ == '__main__':
             self.frm = []
 
             self.typeProj = StringVar(value='Unknown')
+            self.viewType = StringVar(value='images')
             self.inputLabelsCreated = BooleanVar(value=False)
 #Deleting as these get pulled into dictionaries
             self.numPar = StringVar(value=0)
@@ -52,16 +53,46 @@ if __name__ == '__main__':
             self.modelComment = StringVar()
             self.inputFiles = StringVar()
             self.editMode = StringVar()
-            self.editMode.set('Debug mode')
+            self.editMode.set('Normal mode')
             self.results = StringVar()
+
+            self.canvasButtons = {
+                'image': {
+                    'label': 'View image',
+                    'command': lambda:frmCanvas.onChoose(VarProj, frmTop)
+                },
+                'directory': {
+                    'label': 'Load images in directory',
+                    'command': lambda:frmCanvas.onChooseDir(VarProj, frmTop)
+                },
+                'next image': {
+                    'label': 'Next image in directory',
+                    'command': lambda:frmCanvas.onNext()
+                },
+                'text': {
+                    'label': 'View text file',
+                    'command': lambda:frmCanvas.onChooseFile(VarProj, frmTop)
+                },
+                'clear': {
+                    'label': 'Clear',
+                    'command': lambda:frmCanvas.onClear(VarProj, frmTop)
+                }
+            }
+
+            self.canvasButtonStatus = {
+                'image': StringVar(value='active'),
+                'directory': StringVar(value='active'),
+                'next image': StringVar(value='disabled'),
+                'text': StringVar(value='active'),
+                'clear': StringVar(value='active')}
 
             # Workflow control
             self.editButtonStatus = {
                 'project': StringVar(value='active'),
-                'models': StringVar(value='active'),
+                'models': StringVar(value='disabled'),
                 'parameters': StringVar(value='disabled'),
                 'observations': StringVar(value='disabled'),
-                'computations': StringVar(value='active'),
+                'computations': StringVar(value='disabled'),
                 'results': StringVar(value='disabled')}
 
             # Status for workflow tabs
@@ -78,26 +109,26 @@ if __name__ == '__main__':
                 'directory': {
                     'label': 'Project directory:',
                     'optionList': [],
-                    'default': [],
-                    'previous': [],
+                    'default': dirRecent,
+                    'previous': StringVar(),
                     'current': StringVar()},
                'file-name': {
                     'label': 'Project filename:',
                     'optionList': [],
                     'default': 'My File',
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                'project-name': {
                     'label': 'Project name:',
                     'optionList': [],
                     'default': 'My Project',
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                'comment': {
                     'label': 'Comments:',
                     'optionList': [],
                     'default': [],
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
             }
 
@@ -111,47 +142,47 @@ if __name__ == '__main__':
                         'Data-worth analysis': 'data-worth',
                         'Model calibration': 'calibration'},
                     'default': 'Forward simulation',
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'iterations': {
                     'label': 'Number of iterations:',
                     'optionList': [],
                     'default': 1,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'incomplete': {
                     'label': 'Incomplete runs allowed:',
                     'optionList': [],
                     'default': 1,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'levenberg': {
                     'label': 'Levenberg parameter:',
                     'optionList': [],
                     'default': 1,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'marquardt': {
                     'label': 'Marquardt parameter:',
                     'optionList': [],
                     'default': 10.0,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'comment': {
                     'label': 'Comments:',
                     'optionList': [],
                     'default': [],
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'generic': {
                     'label': 'Generic parameter:',
                     'default': 10.0,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
                 'test': {
                     'label': 'Test parameter:',
                     'default': 10.0,
-                    'previous': [],
+                    'previous': StringVar(),
                     'current': StringVar()},
             }
 
@@ -333,47 +364,44 @@ if __name__ == '__main__':
 
 # Menu and toolbar
 
-    menuOptions = [
-        ('File', 0,
-         [('Open',        0, lambda:frmMainMenu.onClickOpen(VarProj, VarMod)),
-          ('Open Recent', 0, lambda:MsgInformation([], ['Message', 'Not available'])),
-          ('Quit',        0, sys.exit)]),
-        ('Edit',          0,
-         [('Project',     0, lambda:editProject()),
-          ('Model Setup', 0, lambda:editModelSetup()),
-          ('Parameters',  0, lambda:MsgInformation([], ['Message', 'Not available'])),
-          ('Observations',0, lambda:MsgInformation([], ['Message', 'Not available'])),
-          ('Computations',0, lambda:editComputations())]),
-        ('Run', 0,
-         [('Option 1',    0, lambda:MsgInformation([], ['Message', 'Not available'])),
-          ('Option 2',    0, lambda:MsgInformation([], ['Message', 'Not available']))]),
-        ('View', 0,
-         [('Choose image',     0, lambda:frmCanvas.onChoose()),
-          ('Choose directory', 0, lambda:frmCanvas.onList())]),
-        ('Help', 0,
-         [('iH2O Help',   0, lambda:help()),
-          ('Support',     0, lambda:support())]) ]
-
-
-# Expbeg Moving MainMenu class to defs here, so can call defs in main file:
-#class MainMenu(Frame):
-    """Creates main menu, and tool bar.
-    """
-
-   #def __init__(self, parent=None, menuOptions=[], VarProj=[], VarMod=[]):
-    def mainMenu(FrameIn, menuOptions, VarProj, VarMod):
+    def mainMenu(FrameIn, VarProj, VarMod):
+        """Creates main menu, and toolbar.
+        """
         frm = Frame(FrameIn)
         frm.pack(expand=YES, fill=BOTH)
         frm.master.title('iH2O')
         frm.master.iconbitmap(bitmap='gray50')
-        menubar = Menu(frm.master)
-        frm.master.config(menu=menubar)
+        frm.menubar = Menu(frm.master)
+        frm.master.config(menu=frm.menubar)
+
+        menuOptions = [
+            ('File', 0,
+             [('Open',        0, lambda:onClickOpen(VarProj, VarMod)),
+              ('Open demo',   0, lambda:onClickOpenDemo(VarProj, VarMod)),
+              ('Open recent', 0, lambda:MsgInformation([], ['Message', 'Not available'])),
+              ('Quit',        0, sys.exit)]),
+            ('Edit',          0,
+             [('Project',     0, lambda:editProject()),
+              ('Model Setup', 0, lambda:editModelSetup()),
+              ('Parameters',  0, lambda:MsgInformation([], ['Message', 'Not available'])),
+              ('Observations',0, lambda:MsgInformation([], ['Message', 'Not available'])),
+              ('Computations',0, lambda:editComputations())]),
+            ('Run', 0,
+             [('Option 1',    0, lambda:MsgInformation([], ['Message', 'Not available'])),
+              ('Option 2',    0, lambda:MsgInformation([], ['Message', 'Not available']))]),
+            ('View', 0,
+             [('Input files',     0, lambda:frmCanvas.onViewFiles(VarProj)),
+              ('Choose image',     0, lambda:frmCanvas.onChoose()),
+              ('Choose directory', 0, lambda:frmCanvas.onChooseDir(VarProj))]),
+            ('Help', 0,
+             [('iH2O Help',   0, lambda:help()),
+              ('Support',     0, lambda:support())]) ]
 
         for (name, key, items) in menuOptions:
-            pulldown = Menu(menubar)
+            pulldown = Menu(frm.menubar)
             for (namesub, keysub, itemssub) in items:
                 pulldown.add_command(label=namesub, command=itemssub)
-                menubar.add_cascade(
+            frm.menubar.add_cascade(
                 label=name,
                 underline=key,
                 menu=pulldown)
@@ -381,71 +409,103 @@ if __name__ == '__main__':
         toolbar = Frame(frm, relief=GROOVE, bd=1)
         toolbar.pack(side=BOTTOM, fill=X, pady=0)
         toolbarOptions = [
-
-            ('Open', 0, lambda:onClickOpen(VarProj, VarMod)),
-            ('Open test', 0, lambda:onClickOpenTest(VarProj, VarMod)),
+           #('Open', 0, lambda:onClickOpen(VarProj, VarMod)),
+            ('Open demo', 0, lambda:onClickOpenDemo(VarProj, VarMod)),
             ('Quit', 0, frm.quit)
             ]
 
-        toolbarButtons = []
         for (name, key, item) in toolbarOptions:
             toolbarButton = Button(
                 toolbar,
                 text=name,
                 command=item)
             toolbarButton.pack(side=LEFT, expand=NO, fill=NONE)
-            toolbarButtons.append(toolbarButton)
 
-        editMode = [
+        def onClickOpen(VarProj, VarMod):
+            VarProj.typeProj.set('Open')
+            editProject()
+
+        def onClickOpenDemo(VarProj, VarMod):
+            path = os.path.join(dirRecent, fileRecent)
+            VarProj.typeProj.set('Open demo') 
+            VarProj.inputLabelsCreated.set(True)
+            editProject()
+
+        # Temporary option to enable all edit buttons (debug mode)
+        frmRadio = Frame(toolbar)
+        frmRadio.config(bd=1, relief=FLAT, bg=color['miniFrame'])
+        frmRadio.pack(side=LEFT, expand=NO, fill=NONE, padx=10)
+        modeOptions = [
             'Normal mode',
             'Debug mode'
-            ]
-            
-#       simulatorMenu = OptionMenu(toolbar, VarProj.editMode, *editMode,
-#           command=setEditMode(VarProj.editMode, VarProj, VarMod))
-#       simulatorMenu.config(
-#           justify=LEFT,
-#           underline=0)
-#       simulatorMenu.pack(side=LEFT, fill=X, padx=10, pady=5)
+        ]
+        radios = []
+        for mode in modeOptions:
+            radio = Radiobutton(
+                frmRadio,
+                text=mode, 
+                value=mode,
+                variable=VarProj.editMode, 
+                command=lambda:setEditButtons())
+            radio.pack(side=LEFT, expand=NO, fill=NONE)
+            radios.append(radio)
 
-#       # MBK!!!: Toolbar button/images need functions/commands and correct images
+#       checkBoxVal = IntVar()
+#       checkBox = Checkbutton(toolbar, variable=checkBoxVal, text='Debug mode')
+#       checkBox.pack(side=LEFT, expand=NO, fill=NONE)
+
+        def setEditButtons():
+            # MBK!!! For now can only switch "to" debug mode, then disabled
+            if VarProj.editMode.get() == 'Debug mode':
+                for tab in VarProj.editButtonStatus:
+                    VarProj.editButtonStatus[tab].set('active')
+                    tabProjectInfo.editButton['state'] = 'active'
+                    tabModelInfo.editButton['state'] = 'active'
+                    tabParameterInfo.editButton['state'] = 'active'
+                    tabObservationInfo.editButton['state'] = 'active'
+                    tabComputationsInfo.editButton['state'] = 'active'
+                    tabResults.editButton['state'] = 'active',
+                radios[0].config(state='disabled')
+                radios[1].config(state='disabled')
+
+        # MBK!!!: Toolbar images not doing anything
+        def imageMenu():
+            size = sizeThumbs
+            thumbs = []
+            photoObjs = []
+            if os.path.exists(dirThumbs):
+                for imgfile in os.listdir(dirThumbs):
+                    path = os.path.join(dirThumbs, imgfile)
+                    if not imgfile.startswith('.'): #skip .DS_Store file
+                        obj = Image.open(path)
+                        obj.thumbnail((size[0], size[1]), Image.ANTIALIAS)
+                        thumbs.append((imgfile,obj))
+                for (imgfile, obj) in thumbs:
+                    img = PhotoImage(obj)
+                    photoObjs.append(img)
+            else:
+                showerror('Error', 'Directory does not exist!\n'+dirThumbs)
+            return photoObjs
+  
+#           for obj in photoObjs:
+#               bt = Button(toolbar, image=obj, command=msgNotImplemented)
+#               bt.pack(side=RIGHT, expand=NO, fill=NONE) 
 #       tst=imageMenu()
 #       for obj in photoObjs:
 #           bt = Button(toolbar, image=obj, command=msgNotImplemented)
 #           bt.pack(side=RIGHT, expand=NO, fill=NONE)
 
-#MBK!!! prob don't need this call, possible just to editProject() from above
-        def onClickOpen(VarProj, VarMod):
-           #openProject(VarProj, VarMod, [], [])
-            VarProj.typeProj.set('Open')
-            editProject()
+        photoObjs = imageMenu()
+        for obj in photoObjs:
+            bt = Button(toolbar, image=obj, command=msgNotImplemented)
+            bt.pack(side=RIGHT, expand=NO, fill=NONE)
 
-        def onClickOpenTest(VarProj, VarMod):
-            path = os.path.join(dirRecent, fileRecent)
-           #openProject(VarProj, VarMod, 'Open test')
-           #VarProj.projVar['file-name']['current'].set(
-           #    'projectOne.xml')
-           #VarProj.projVar['directory']['current'].set(
-           #    '/Users/mbkowalsky/mikek/work/software/python/py2app_v1')
-            VarProj.typeProj.set('Open test') 
-            print('MBK: typeProj:', VarProj.typeProj.get())
-            editProject()
-   
-# Expend
-   #frmMainMenu = MainMenu(root, menuOptions, VarProj, VarMod)
-    frmMainMenu = mainMenu(root, menuOptions, VarProj, VarMod)
+    frmMainMenu = mainMenu(root, VarProj, VarMod)
     frmInfoGlobal = FrameContainer()         
-
-#MBK!!! Need to implement tool for opening and displaying text file???
-    # Menu that appears at top of Information
-    datInfoMenu = [
-        ('Choose image', lambda:frmCanvas.onChoose()),
-        ('Choose file', lambda:msgUnavailable())
-        ]
 
 # Information, Input, Controls
 
-# MBK!!! to be swapped out with new dictionary references, as developed
+    # MBK!!! to be swapped out with new dictionary references, as developed
     datInfoSummary = [
         ('Project Name:', VarProj.projVar['project-name']['current']),
         ('Models:',       VarProj.numMod),
@@ -457,25 +517,43 @@ if __name__ == '__main__':
         ]
 
     # Frames for Information
-    frmTop = InfoTitleMenu(frmInfoGlobal, 'Project details', datInfoMenu)
+    frmTop = InfoTitleMenu(frmInfoGlobal, 'Project details', VarProj)
     frmSubInfo = InfoSubFrame(frmInfoGlobal)
 
     # Frames for canvas and summary info
-    frmCanvas = InfoCanvas(frmSubInfo)
+    frmCanvas = InfoCanvas(frmSubInfo, VarProj, frmTop)
+    InfoCanvas.makeCanvImage(frmCanvas, 'iHHO_logo_noBackground.png') 
+
     frmSummary = InfoSummary(frmSubInfo, datInfoSummary)
     frmSep = FrameSeparator(frmInfoGlobal, TOP, colorSeparator, 10)
 
     # Frames for Key Controls and Messages 
     FrameSeparator(frmInfoGlobal,)
-    FrameSaveRun(frmInfoGlobal,)
+    FrameSaveRun(frmInfoGlobal, VarProj, VarMod)
 
     # Main frames for Input
     frmSubInput = FrameSubInput(frmInfoGlobal)
     frmInputGlobal = FrameInput(frmSubInput)
     frmMsg = frameMsgOKCancel(frmInfoGlobal,msgText,commandOK, VarProj)
-  
-# Workflow
+ 
+    def onViewFiles():
+#       try:
+#           print('Before:', frmCanvas.buttons[0]['text'])
+#          #frmCanvas.buttons[0]['text']='X'
+#       except:
+#           print('MBK no can do')
+        frmCanvas.makeCanvText()
 
+    def onViewImages():
+        frmCanvas.makeCanvImage()
+
+    def onChooseImage():
+        frmCanvas.onChoose()
+
+    def onChooseFile():
+        frmCanvas.onChooseFile(VarProj)
+
+# Workflow
     frm = []
     tabProjectInfo = WorkflowTab(
         frm,
@@ -507,7 +585,8 @@ if __name__ == '__main__':
     tabObservationInfo = WorkflowTab(
         frm,
         'Observations', lambda:editObservations(),
-        [('Number:', VarProj.numObs)],
+       #[('Number:', VarProj.numObs)],
+        [('Edit status:', VarProj.editButtonStatus['observations'])],
         VarProj.editButtonStatus['observations'],
         VarProj.status['observations'])
     tabComputationsInfo = WorkflowTab(
@@ -552,7 +631,7 @@ if __name__ == '__main__':
         global frmInputGlobal                                    
         selectedTab.set('Project')                          
         changeTabsToDefaultColor()
-        changeTabColor(tabProjectInfo,  colorTabActive)            
+        changeTabColor(tabProjectInfo, colorTabActive)            
         clearFrame(frmInputGlobal)                        
         frmInputGlobal = FrameInput(frmSubInput)
         ProjectContainer(frmInputGlobal, 'Project details', VarProj, VarMod) 
@@ -610,11 +689,12 @@ if __name__ == '__main__':
 
     # MBK!!! Temporary way to change color to default during code development:
     def changeTabsToDefaultColor():
-            changeTabColor(tabProjectInfo, colorTabDefault)
-            changeTabColor(tabModelInfo, colorTabDefault)
-            changeTabColor(tabParameterInfo, colorTabDefault)
-            changeTabColor(tabObservationInfo, colorTabDefault)
-            changeTabColor(tabComputationsInfo, colorTabDefault)
+        for tab in [tabProjectInfo, 
+                    tabModelInfo, 
+                    tabParameterInfo, 
+                    tabObservationInfo, 
+                    tabComputationsInfo]:
+            changeTabColor(tab, colorTabDefault)
 
     def printMsg(msg):
         msgText.set(msg)

@@ -16,7 +16,14 @@ class InfoSummary(Frame):
     def __init__(self, parent=None, datInfoSummary=[]):
 
         Frame.__init__(self, parent)
-        self.config(bd=1, relief=SUNKEN, width=10, height=30, bg=colorCanv, padx=0, pady=5)
+        self.config(
+            bd=1, 
+            relief=SUNKEN, 
+            width=10, 
+            height=30, 
+            bg=colorCanv, 
+            padx=0, 
+            pady=5)
         self.pack(side=RIGHT, fill=BOTH)
 
         self.rows=[]
@@ -80,7 +87,7 @@ class InfoSubFrame(Frame):
 class InfoTitleMenu(Frame):
     """Create title and menu at top of Information."""
 
-    def __init__(self, parent=None, titleInfo=[], datInfoMenu=[]):
+    def __init__(self, parent=None, titleInfo=[], VarProj=[]):
         Frame.__init__(self, parent)
         self.config(bd=2, relief=FLAT, width=10, height=30)
         self.pack(side=TOP, fill=BOTH)
@@ -88,8 +95,11 @@ class InfoTitleMenu(Frame):
         self.infoMenu = Menubutton(self, text='View', underline=0, bg=color['tab'])
         self.infoMenu.pack(side=RIGHT, fill=X, padx=10)
         self.file = Menu(self.infoMenu)
-        for (name, key) in datInfoMenu:
-            self.file.add_command(label=name, command=key)
+        for (items) in VarProj.canvasButtons:
+            self.file.add_command(
+                label=VarProj.canvasButtons[items]['label'], 
+                command=VarProj.canvasButtons[items]['command'],
+                state=VarProj.canvasButtonStatus[items].get())
         self.infoMenu.config(menu=self.file)
 
         self.title = Label(
@@ -105,9 +115,17 @@ class InfoTitleMenu(Frame):
 class InfoCanvas(Frame):
     """Create main canvas in Information for displaying images."""
 
-    def __init__(self, parent=None, **options):
-        Frame.__init__(self, parent, **options)
-        self.config(bd=1, relief=SUNKEN, width=10, height=30, bg=colorCanv, padx=0, pady=5)
+   #def __init__(self, parent=None, VarProj=[]):
+    def __init__(self, parent=None, VarProj=[], frmTop=[]):
+        Frame.__init__(self, parent)
+        self.config(
+            bd=1, 
+            relief=SUNKEN, 
+            width=10, 
+            height=30, 
+            bg=colorCanv, 
+            padx=0, 
+            pady=5)
         self.pack(side=RIGHT, fill=BOTH)
 
         self.canv = Canvas(self, relief=FLAT)
@@ -117,6 +135,7 @@ class InfoCanvas(Frame):
             scrollregion=canvasScrollRegion,
             highlightthickness=0,
             bg=colorCanv)
+        self.makeButtons(VarProj)
 
         self.sbar = Scrollbar(self)
         self.sbar.config(command=self.canv.yview, width=16)
@@ -124,36 +143,75 @@ class InfoCanvas(Frame):
         self.sbar.pack(side=RIGHT, fill=Y)
         self.canv.pack(side=LEFT, expand=YES, fill=BOTH)
 
-        self.thumbs = []
-#       imgfile = 'iH2O_Logo.png'
-        imgfile = 'Logo_FinsterleGeoConsulting_NoNG.png'
-        path = os.path.join(dirThumbs, imgfile)
-        self.obj = Image.open(path)
+    def makeCanvImage(self, imgfile='iHHO_logo_noBackground.png'): 
+        self.canv.delete("all")
+       #self.thumbs = []
+        self.path = os.path.join(dirThumbs, imgfile)
+        self.obj = Image.open(self.path)
         self.obj.thumbnail(sizeCanvImage, Image.ANTIALIAS)
         self.img = PhotoImage(self.obj)
         self.canvImage = self.canv.create_image(
-            x0_CanvImage,
-            y0_CanvImage, 
-            anchor = NW, 
-            image = self.img)
+                x0_CanvImage,
+                y0_CanvImage, 
+                anchor = NW, 
+                image = self.img)
 
-        self.buttonChoose = Button(self, text="Choose image", command=self.onChoose)
-        self.buttonChoose.pack()
-        self.buttonDir = Button(self, text="Choose directory", command=self.onList)
-        self.buttonDir.pack()
-        self.buttonNext = Button(
-            self, 
-            text="Next image", 
-            state=DISABLED,
-            command=self.onNext)
-        self.buttonNext.pack()
+    def makeCanvText(self):
+        self.canv.delete('all')
+        self.canvImage = Text(self, relief=FLAT)
+        self.canvImage.config(
+            relief=FLAT,
+       #    yscrollcommand=self.sbar2.set,
+            highlightthickness=1,
+            bd=1)
+       #self.sbar2.config(command=self.canvImage.yview)
+ 
+        self.canvImage.pack(side=LEFT, expand=YES, fill=BOTH)
+        path = os.path.join(dirRecent, fileRecent)
+        file = path
+        self.setText('test', file)
+ 
+        self.canvWindow = self.canv.create_window(
+                x0_CanvImage,
+                y0_CanvImage,
+                width=500,
+                height=250,
+                anchor=NW,
+                window=self.canvImage)
 
-    def onList(self):
+    def setText(self, text='', file=None):
+        if file:
+            text = open(file, 'r').read()
+            self.canvImage.delete('1.0', END)
+            self.canvImage.insert('1.0', text)
+            self.canvImage.mark_set(INSERT, '1.0')
+            self.canvImage.focus()
+
+#   def getText(self):
+#       return self.text.get('1.0', 'end-2c')
+
+    # Buttons inside Input frame, at top of canvas
+    def makeButtons(self, VarProj):
+
+        frmButtons = Frame(self)
+        frmButtons.pack(side=TOP, anchor=N)
+        
+        self.buttonList = {}
+        for (items) in VarProj.canvasButtons:
+            self.buttonList[items] = Button(
+                frmButtons, 
+                text=VarProj.canvasButtons[items]['label'], 
+                command=VarProj.canvasButtons[items]['command'],
+                state=VarProj.canvasButtonStatus[items].get())
+            self.buttonList[items].pack(side=LEFT)
+
+    def onChooseDir(self, VarProj, frmTop):
         """Ask to select directory, load images from directory for viewing.
 
-        Enable the buttonNext to call onNext and display next image.
+        Enable the button to call onNext and display next image.
         """
 
+       #self.makeCanvImage()
         self.directory = filedialog.askdirectory()
         if self.directory:
             self.thumbs = []
@@ -163,16 +221,41 @@ class InfoCanvas(Frame):
                 if (imgfile.endswith('.png') or imgfile.endswith('.jpg')):
                     obj = Image.open(path)
                     obj.thumbnail(sizeCanvImage, Image.ANTIALIAS)
-               #    self.thumbs.append((imgfile,obj))
                     self.thumbs.append(PhotoImage(obj))
             self.thumbNumber = 0
             if len(self.thumbs)>0:
-                self.canv.itemconfig(self.canvImage, image=self.thumbs[self.thumbNumber])
-                self.buttonNext['state']=ACTIVE
+                self.makeCanvImage()
+                self.canv.itemconfig(
+                    self.canvImage, 
+                    image=self.thumbs[self.thumbNumber])
+
+                # Set button inside and menu entry on top of canvas
+                self.buttonList['next image']['state']=ACTIVE
+                frmTop.file.entryconfigure(
+                    VarProj.canvasButtons['next image']['label'], 
+                    state='active')
+
             else:
-                self.buttonNext['state']=DISABLED
-        else:
-            MsgInformation([], ['Message', 'Cancelled'])
+                # Set button inside and menu entry on top of canvas
+                self.buttonList['next image']['state']='disabled'
+                frmTop.file.entryconfigure(
+                    VarProj.canvasButtons['next image']['label'],
+                    state='disabled')
+
+                MsgInformation([], ['Message', 
+                    'No images found in the selected directory'])
+
+    def onClear(self, VarProj, frmTop):
+        """Clear canvas."""
+
+        self.canv.delete("all")
+        self.buttonList['next image']['state']=DISABLED
+
+        # Set button inside and menu entry on top of canvas
+        self.buttonList['next image']['state']='disabled'
+        frmTop.file.entryconfigure(
+            VarProj.canvasButtons['next image']['label'],
+            state='disabled')
 
     def onNext(self):
         """If images were loaded from directory, load next one in list."""
@@ -181,10 +264,12 @@ class InfoCanvas(Frame):
             self.thumbNumber += 1
             if self.thumbNumber == len(self.thumbs):
                 self.thumbNumber = 0
-            self.canv.itemconfig(self.canvImage, image = self.thumbs[self.thumbNumber])
+            self.canv.itemconfig(
+                self.canvImage, 
+                image = self.thumbs[self.thumbNumber])
 
-    def onChoose(self):
-        """Ask to select file and display image."""
+    def onChoose(self, VarProj, frmTop):
+        """Ask to select image file and display it."""
 
         self.initialOpenDirectory = initialOpenDirectory
         self.file = filedialog.askopenfilename(
@@ -192,12 +277,36 @@ class InfoCanvas(Frame):
             title = "Select image",
             filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
         if self.file:
+            self.makeCanvImage()
             obj = Image.open(self.file)
             obj.thumbnail(sizeCanvImage, Image.ANTIALIAS)
             self.img = PhotoImage(obj)
             self.canv.itemconfig(self.canvImage, image = self.img)
-        else:
-            MsgInformation([], ['Message', 'Cancelled'])
+
+            # Set button inside and menu entry on top of canvas
+            self.buttonList['next image']['state']='disabled'
+            frmTop.file.entryconfigure(
+                VarProj.canvasButtons['next image']['label'],
+                state='disabled')
+ 
+    def onChooseFile(self, VarProj, frmTop):
+        """Ask to select text file and display it."""
+
+        self.initialOpenDirectory = initialOpenDirectory
+        self.file = filedialog.askopenfilename(
+            initialdir = VarProj.projVar['directory']['current'].get(),
+            title = "Select image",
+           #filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
+            filetypes = (("xml files","*.xml"),("all files","*.*")))
+        if self.file:
+            self.makeCanvText()
+            self.setText('test', self.file)
+
+            # Set button inside and menu entry on top of canvas
+            self.buttonList['next image']['state']='disabled'
+            frmTop.file.entryconfigure(
+                VarProj.canvasButtons['next image']['label'],
+                state='disabled')
 
     def showAllEvents(self, event):
         print(event)
@@ -209,24 +318,5 @@ class InfoCanvas(Frame):
         print(event.x, event.y)   #view area coords
         print(self.canvas.canvasx(event.x), self.canvas.canvasy(event.y))  #canvas coords
 
-
-
-
-if __name__ == "__main__": 
-
-    from PIL               import Image
-
-#   frm = InfoSummary()
-    frm = []
-    datInfoMenu = [
-       #('View image', lambda:viewImage()),
-        ('View image', lambda:openImage(frmGlobalX)),
-        ('View file', lambda:msgUnavailable())
-        ]
-    InfoTitleMenu(frm, 'Project details', datInfoMenu)
-   #InfoTitleMenu(frm)
-    frmSub = InfoSubFrame(frm)
-    InfoCanvas(frmSub)
-    mainloop()
 
 
