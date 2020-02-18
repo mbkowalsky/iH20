@@ -68,11 +68,17 @@ sizeInfoType     = 12
 sizeInputEntry    = 12
 
 # Canvas
-canvasScrollRegion = (0, 0, 300, 800)
+canvasScrollRegion = (0, 0, 300, 1000)
+infoCanvWidth = 550
+infoCanvHeight = 300
+inputCanvWidth = 950
+inputCanvHeight = 1000
 canvWidth = 550
-canvHeight = 300
+canvHeight = 1000
 sizeCanvImage = (canvWidth-25, canvWidth-25)
 (x0_CanvImage, y0_CanvImage) = (10, 20)
+modelCanvWidth = 950
+modelCanvHeight = 300
 
 # Workflow
 wrapLengthWF = 225

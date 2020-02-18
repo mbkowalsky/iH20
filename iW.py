@@ -13,6 +13,8 @@ from frameInput         import ModelInputContainer
 from frameInput         import ProjectContainer
 from frameInput         import CompInputContainer
 from frameSaveRun       import FrameSaveRun
+from frameSaveRun       import GuiOutput
+from frameSaveRun       import redirectedGuiShellCmd
 from frameWorkflow      import WorkflowTab
 from frameInfo          import InfoSummary
 from frameExtra         import FrameExtra
@@ -27,8 +29,10 @@ from frameTools         import msgUnavailable
 from frameTools         import clearFrame
 from settings           import *
 import os
-from PIL               import Image
-from PIL.ImageTk       import PhotoImage
+from PIL                import Image
+from PIL.ImageTk        import PhotoImage
+#from subprocess         import Popen, PIPE
+import subprocess
 
 if __name__ == '__main__':
 
@@ -42,6 +46,8 @@ if __name__ == '__main__':
             self.typeProj = StringVar(value='Unknown')
             self.viewType = StringVar(value='images')
             self.inputLabelsCreated = BooleanVar(value=False)
+            self.models = StringVar()
+            self.simulators= StringVar()
 #Deleting as these get pulled into dictionaries
             self.numPar = StringVar(value=0)
             self.numActivePar = StringVar(value=0)
@@ -49,7 +55,6 @@ if __name__ == '__main__':
             self.numObs = StringVar(value=0)
             self.numMod = IntVar()
             self.mNum = IntVar()
-            self.models = StringVar()
             self.modelComment = StringVar()
             self.inputFiles = StringVar()
             self.editMode = StringVar()
@@ -71,7 +76,7 @@ if __name__ == '__main__':
                 },
                 'text': {
                     'label': 'View text file',
-                    'command': lambda:frmCanvas.onChooseFile(VarProj, frmTop)
+                    'command': lambda:frmCanvas.onChooseFile(VarProj, frmTop, [])
                 },
                 'clear': {
                     'label': 'Clear',
@@ -104,87 +109,109 @@ if __name__ == '__main__':
                 'computations': BooleanVar(value='False'),
                 'results': BooleanVar(value='False')}
 
-            # Project parameters
-            self.projVar = {
-                'directory': {
-                    'label': 'Project directory:',
-                    'optionList': [],
-                    'default': dirRecent,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-               'file-name': {
-                    'label': 'Project filename:',
-                    'optionList': [],
-                    'default': 'My File',
-                    'previous': StringVar(),
-                    'current': StringVar()},
-               'project-name': {
-                    'label': 'Project name:',
-                    'optionList': [],
-                    'default': 'My Project',
-                    'previous': StringVar(),
-                    'current': StringVar()},
-               'comment': {
-                    'label': 'Comments:',
-                    'optionList': [],
-                    'default': [],
-                    'previous': StringVar(),
-                    'current': StringVar()},
-            }
+# Project parameters
+            keyProj = {
+                'directory': ['Project directory:', [], dirRecent],
+                'file-name': ['Project filename:', [], 'My File'],
+                'project-name': ['Project name:', [], 'My Project'],
+                'comment': ['Comments:', [], []]}
+            self.projList = {}
+            self.projListPrev = {}
+            self.projVar = {}
+            for (name, items) in keyProj.items():
+                print('keyProj.items:', name, items)
+                self.projList[name]=[]
+                self.projListPrev[name]=[]
+                # Need to open project (i.e., before adding Models):
+                self.projListPrev[name].append(StringVar())
+                self.projList[name].append(StringVar())
+                self.projVar.update({
+                    name: {
+                        'label': items[0],
+                        'optionList': items[1],
+                        'default': items[2],
+                        'previous': self.projListPrev[name],
+                        'current': self.projList[name]}})
+    
+# Model-setup parameters
+            keyModel = {
+                '@name': ['Name of model:', [], 'My Model'],
+                'simulator': [
+                    'Simulator:', {
+                        'None': 'none',
+                        'TOUGH2': 'tough2',
+                        'TOUGHREACT': 'toughreact',
+                        'ECOSYS': 'ecosys',
+                        'User supplied': 'user'},
+                    'None'],
+                'comment': ['Comments:', [], []]}
 
-            # Computational parameters
-            self.compVar = {
-                'application-mode': {
-                    'label': 'Application mode:',
-                    'optionList': {
-                        'Forward simulation': 'forward',
-                        'Sensitivity analysis': 'sensitivity',
-                        'Data-worth analysis': 'data-worth',
-                        'Model calibration': 'calibration'},
-                    'default': 'Forward simulation',
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'iterations': {
-                    'label': 'Number of iterations:',
-                    'optionList': [],
-                    'default': 1,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'incomplete': {
-                    'label': 'Incomplete runs allowed:',
-                    'optionList': [],
-                    'default': 1,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'levenberg': {
-                    'label': 'Levenberg parameter:',
-                    'optionList': [],
-                    'default': 1,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'marquardt': {
-                    'label': 'Marquardt parameter:',
-                    'optionList': [],
-                    'default': 10.0,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'comment': {
-                    'label': 'Comments:',
-                    'optionList': [],
-                    'default': [],
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'generic': {
-                    'label': 'Generic parameter:',
-                    'default': 10.0,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-                'test': {
-                    'label': 'Test parameter:',
-                    'default': 10.0,
-                    'previous': StringVar(),
-                    'current': StringVar()},
-            }
+            self.modelList = {}
+            self.modelListPrev = {}
+            self.modelVar = {}
+            self.modelFilesList = {}
+            self.modelFilesListPrev = {}
+            self.modelFiles = {}
+
+            for (name, items) in keyModel.items():
+                print('keyModel.items:', name, items)
+                self.modelList[name]=[]
+                self.modelListPrev[name]=[]
+                self.modelVar.update({
+                    name: {
+                        'label': items[0],
+                        'optionList': items[1],
+                        'default': items[2],
+                        'previous': self.modelListPrev[name],
+                        'current': self.modelList[name]}})
+
+           #name = 'input-file'
+            keyInputFiles = {'input-file': ['Files:', [], []]}
+            for (name, items) in keyInputFiles.items():
+                print('keyInputFiles.items:', name, items)
+                self.modelFilesList[name]=[]
+                self.modelFilesListPrev[name]=[]
+                self.modelFiles.update({
+                    name: {
+                        'label': items[0],
+                        'optionList': items[1],
+                        'default': items[2],
+                        'previous': self.modelFilesListPrev[name],
+                        'current': self.modelFilesList[name]}})
+
+# Computational parameters
+            keyComp = {
+                'application-mode': [
+                    'Application mode:', {
+                         'Forward simulation': 'forward',
+                         'Sensitivity analysis': 'sensitivity',
+                         'Data-worth analysis': 'data-worth',
+                         'Model calibration': 'calibration'},
+                    'Forward Simulation'],
+                'iterations': ['Number of iterations:', [], 1],
+                'incomplete': ['Incomplete runs allowed:', [], 1],
+                'levenberg': ['Levenberg parameter:', [], 1],
+                'marquardt': ['Marquardt parameter:', [], 10],
+                'comment': ['Comments:', [], []]}
+
+            self.compList = {}
+            self.compListPrev = {}
+            self.compVar = {}
+
+            for (name, items) in keyComp.items():
+                print('keyComp.items:', name, items)
+                self.compList[name]=[]
+                self.compListPrev[name]=[]
+                # Need before adding Models:
+                self.compListPrev[name].append(StringVar())
+                self.compList[name].append(StringVar())
+                self.compVar.update({
+                    name: {
+                        'label': items[0],
+                        'optionList': items[1],
+                        'default': items[2],
+                        'previous': self.compListPrev[name],
+                        'current': self.compList[name]}})
 
            #Keeping this as may be a useful approach
            #}
@@ -193,7 +220,10 @@ if __name__ == '__main__':
            #    'verbose' : '-v',
            #    'fontname' : 'Courier',
            #    'point' : 12
-           #self.compVar = dict((d,StringVar(value=v)) for (d,v) in compVarInfo.items())
+           #self.compVar = dict(
+           #    (d,StringVar(value=v)) for (d,v) in compVarInfo.items())
+
+    VarProj = ProjectVariables()
 
     class ModelVariables(Frame):
         def __init__(self, parent=None, frm=[]):
@@ -213,6 +243,12 @@ if __name__ == '__main__':
             self.inputFiles = StringVar()
             self.numInputFiles = IntVar()
 
+           #self.fileDict = {
+           #    0: {'filename': '',
+           #        'directory': ''}
+           #}
+            self.fileDict = {}
+
     selectedTab = StringVar()
     commandOK = StringVar()
     msgText = StringVar()
@@ -220,14 +256,6 @@ if __name__ == '__main__':
     selectedTab.set('None')
     commandOK.set('True')
     msgText.set('None')
-
-    VarProj = ProjectVariables()
-#MBK!!! This approach needs to be redone differently 
-    VarMod = [ModelVariables(), 
-              ModelVariables(), 
-              ModelVariables(), 
-              ModelVariables(), 
-              ModelVariables()]
 
 # Messages and key controls
 
@@ -273,14 +301,17 @@ if __name__ == '__main__':
             # Currently OK enabled only when editing workflow tab
             if not name=='None':  
 
-                if askyesno('Verify OK', 'Are you finished editing '+name+'?'):
-                    # MBK!!! Need to implement new approach for checking/setting status
+                if askyesno(
+                    'Verify OK', 
+                    'Are you finished editing '+name+'?'):
                     
-                    #setEdit(VarProj, VarMod)
-                    #setStatus(VarProj, VarMod)
+                    # MBK!!! Need new approach for checking/setting status
+                    
+                    #setEdit(VarProj)
+                    #setStatus(VarProj)
 
                     if selectedTab.get() == 'Project':
-                        if not VarProj.projVar['file-name']['current'].get()=="":
+                        if not VarProj.projVar['file-name']['current'][0].get()=="":
                             tabProjectInfo.editButton['state'] = 'active'
                             tabModelInfo.editButton['state'] = 'active'
                            #VarProj.statProj.set(True)
@@ -296,10 +327,18 @@ if __name__ == '__main__':
                         changeTabColor(tabProjectInfo, colorTabDefault) 
 
                     elif selectedTab.get() == 'Model Setup':
-                       #if temporaryYesMan() == TRUE:
-                        # MBK!!! For now just checking simulator 
-                        if (not VarMod[0].simulator.get() == 'None' and
-                            not VarMod[0].inputFiles.get() == ''):
+                        tst = []
+                        for name in VarProj.modelVar['@name']['current']:
+                            tst.append(name.get())
+                        VarProj.models.set(tst)
+                        tst = []
+                        for name in VarProj.modelVar['simulator']['current']:
+                            tst.append(name.get())
+                        VarProj.simulators.set(tst)
+
+                        if (not 
+                            VarProj.modelVar['simulator']['current'][0].get() == 'None'
+                           ):
                            #tabComputationsInfo.editButton['state'] = 'active'
                             VarProj.status['models'].set(True)
                         else:
@@ -332,7 +371,7 @@ if __name__ == '__main__':
                 else:
                     printMsg('Continue editing '+name+'.')
             else:
-                # MBK!!! Must add guidance for when OK is clicked but nothing is open
+                # MBK!!! Must fix for OK but nothing is open
                 MsgInformation(
                     [],
                     ['Message', 
@@ -347,7 +386,7 @@ if __name__ == '__main__':
                 else:
                     printMsg('Continue editing '+name+'.')
             else:
-                # MBK!!! Must add guidance for when Cancel is clicked but nothing is open
+                # MBK!!! Must fix for Cancel but nothing is open
                 MsgInformation(
                     [],
                     ['Message', 
@@ -356,15 +395,15 @@ if __name__ == '__main__':
 
         def temporaryYesMan(): #Just using this while developing code
             return TRUE
-        # MBK!!! Need to create routines to check status and enable/disable edit buttons
-        def setEdit(VarProj, VarMod):
+        # MBK!!! Need check for status and enable/disable edit buttons
+        def setEdit(VarProj):
             return TRUE
-        def setStatus(VarProj, VarMod):
+        def setStatus(VarProj):
             return TRUE
 
 # Menu and toolbar
 
-    def mainMenu(FrameIn, VarProj, VarMod):
+    def mainMenu(FrameIn, VarProj):
         """Creates main menu, and toolbar.
         """
         frm = Frame(FrameIn)
@@ -376,26 +415,50 @@ if __name__ == '__main__':
 
         menuOptions = [
             ('File', 0,
-             [('Open',        0, lambda:onClickOpen(VarProj, VarMod)),
-              ('Open demo',   0, lambda:onClickOpenDemo(VarProj, VarMod)),
-              ('Open recent', 0, lambda:MsgInformation([], ['Message', 'Not available'])),
-              ('Quit',        0, sys.exit)]),
-            ('Edit',          0,
-             [('Project',     0, lambda:editProject()),
-              ('Model Setup', 0, lambda:editModelSetup()),
-              ('Parameters',  0, lambda:MsgInformation([], ['Message', 'Not available'])),
-              ('Observations',0, lambda:MsgInformation([], ['Message', 'Not available'])),
-              ('Computations',0, lambda:editComputations())]),
+             [('Open', 0, 
+               lambda:onClickOpen(VarProj)),
+              ('Open demo', 0, 
+               lambda:onClickOpenDemo(VarProj)),
+              ('Open recent', 0, 
+               lambda:MsgInformation(
+                   [], ['Message', 'Not available'])),
+              ('Quit', 0, sys.exit)]),
+
+            ('Edit', 0,
+             [('Project', 0, 
+               lambda:editProject()),
+              ('Model Setup', 0, 
+               lambda:editModelSetup()),
+              ('Parameters', 0, 
+               lambda:MsgInformation(
+                   [], ['Message', 'Not available'])),
+              ('Observations',0, 
+               lambda:MsgInformation(
+                   [], ['Message', 'Not available'])),
+              ('Computations',0, 
+               lambda:editComputations())]),
+
             ('Run', 0,
-             [('Option 1',    0, lambda:MsgInformation([], ['Message', 'Not available'])),
-              ('Option 2',    0, lambda:MsgInformation([], ['Message', 'Not available']))]),
+             [('Option 1', 0, 
+               lambda:MsgInformation(
+                   [], ['Message', 'Not available'])),
+              ('Option 2', 0, 
+               lambda:MsgInformation(
+                   [], ['Message', 'Not available']))]),
+
             ('View', 0,
-             [('Input files',     0, lambda:frmCanvas.onViewFiles(VarProj)),
-              ('Choose image',     0, lambda:frmCanvas.onChoose()),
-              ('Choose directory', 0, lambda:frmCanvas.onChooseDir(VarProj))]),
+             [('Input files', 0, 
+               lambda:frmCanvas.onViewFiles(VarProj)),
+              ('Choose image', 0, 
+               lambda:frmCanvas.onChoose()),
+              ('Choose directory', 0, 
+               lambda:frmCanvas.onChooseDir(VarProj))]),
+
             ('Help', 0,
-             [('iH2O Help',   0, lambda:help()),
-              ('Support',     0, lambda:support())]) ]
+             [('iH2O Help', 0, 
+               lambda:help()),
+              ('Support', 0, 
+               lambda:support())]) ]
 
         for (name, key, items) in menuOptions:
             pulldown = Menu(frm.menubar)
@@ -409,8 +472,8 @@ if __name__ == '__main__':
         toolbar = Frame(frm, relief=GROOVE, bd=1)
         toolbar.pack(side=BOTTOM, fill=X, pady=0)
         toolbarOptions = [
-           #('Open', 0, lambda:onClickOpen(VarProj, VarMod)),
-            ('Open demo', 0, lambda:onClickOpenDemo(VarProj, VarMod)),
+           #('Open', 0, lambda:onClickOpen(VarProj)),
+            ('Open demo', 0, lambda:onClickOpenDemo(VarProj)),
             ('Quit', 0, frm.quit)
             ]
 
@@ -421,11 +484,11 @@ if __name__ == '__main__':
                 command=item)
             toolbarButton.pack(side=LEFT, expand=NO, fill=NONE)
 
-        def onClickOpen(VarProj, VarMod):
+        def onClickOpen(VarProj):
             VarProj.typeProj.set('Open')
             editProject()
 
-        def onClickOpenDemo(VarProj, VarMod):
+        def onClickOpenDemo(VarProj):
             path = os.path.join(dirRecent, fileRecent)
             VarProj.typeProj.set('Open demo') 
             VarProj.inputLabelsCreated.set(True)
@@ -450,9 +513,9 @@ if __name__ == '__main__':
             radio.pack(side=LEFT, expand=NO, fill=NONE)
             radios.append(radio)
 
-#       checkBoxVal = IntVar()
-#       checkBox = Checkbutton(toolbar, variable=checkBoxVal, text='Debug mode')
-#       checkBox.pack(side=LEFT, expand=NO, fill=NONE)
+# checkBoxVal = IntVar()
+# checkBox = Checkbutton(toolbar, variable=checkBoxVal, text='Debug mode')
+# checkBox.pack(side=LEFT, expand=NO, fill=NONE)
 
         def setEditButtons():
             # MBK!!! For now can only switch "to" debug mode, then disabled
@@ -500,7 +563,7 @@ if __name__ == '__main__':
             bt = Button(toolbar, image=obj, command=msgNotImplemented)
             bt.pack(side=RIGHT, expand=NO, fill=NONE)
 
-    frmMainMenu = mainMenu(root, VarProj, VarMod)
+    frmMainMenu = mainMenu(root, VarProj)
     frmInfoGlobal = FrameContainer()         
 
 # Information, Input, Controls
@@ -529,7 +592,7 @@ if __name__ == '__main__':
 
     # Frames for Key Controls and Messages 
     FrameSeparator(frmInfoGlobal,)
-    FrameSaveRun(frmInfoGlobal, VarProj, VarMod)
+    FrameSaveRun(frmInfoGlobal, VarProj)
 
     # Main frames for Input
     frmSubInput = FrameSubInput(frmInfoGlobal)
@@ -549,7 +612,7 @@ if __name__ == '__main__':
 
     def onChooseImage():
         frmCanvas.onChoose()
-
+# MBK!!! here check/remove this
     def onChooseFile():
         frmCanvas.onChooseFile(VarProj)
 
@@ -570,9 +633,8 @@ if __name__ == '__main__':
     tabModelInfo = WorkflowTab(
         frm,
         'Model Setup', lambda:editModelSetup(),
-        [('Models:', VarProj.numMod),
-         ('Model name:', VarMod[i].name),
-         ('Input files:', VarMod[i].inputFiles)],
+        [('Simulators:', VarProj.simulators),
+         ('Models:', VarProj.models)],
         VarProj.editButtonStatus['models'],
         VarProj.status['models'])
     tabParameterInfo = WorkflowTab(
@@ -612,7 +674,9 @@ if __name__ == '__main__':
 # Misc 
 
     def viewImage():
-        frmCanvas.canv.itemconfig(frmCanvas.canvImage, image = frmCanvas.thumbs[3])
+        frmCanvas.canv.itemconfig(
+            frmCanvas.canvImage, 
+            image = frmCanvas.thumbs[3])
 
     def openTest():
         file = filedialog.askopenfilename(
@@ -634,7 +698,10 @@ if __name__ == '__main__':
         changeTabColor(tabProjectInfo, colorTabActive)            
         clearFrame(frmInputGlobal)                        
         frmInputGlobal = FrameInput(frmSubInput)
-        ProjectContainer(frmInputGlobal, 'Project details', VarProj, VarMod) 
+        ProjectContainer(
+            frmInputGlobal, 
+            'Project details', 
+            VarProj)
         printMsg('"Edit Project" clicked.')                 
 
     def editModelSetup():
@@ -646,7 +713,13 @@ if __name__ == '__main__':
         frmInputGlobal = FrameInput(frmSubInput)
         NewModel = False
         VarProj.mNum.set(0)
-        ModelInputContainer(frmInputGlobal, 'Model Setup', VarProj, VarMod, NewModel)
+        ModelInputContainer(
+            frmInputGlobal, 
+            'Model Setup', 
+            VarProj, 
+            NewModel,
+            frmCanvas,
+            frmTop)
         printMsg('"Edit Model Setup" clicked.')
 
     def editParameters():
@@ -673,7 +746,11 @@ if __name__ == '__main__':
         clearFrame(frmInputGlobal)
         frmInputGlobal = FrameInput(frmSubInput)
         NewModel = False
-        CompInputContainer(frmInputGlobal, 'Computations', VarProj, VarMod, NewModel)
+        CompInputContainer(
+            frmInputGlobal, 
+            'Computations', 
+            VarProj, 
+            NewModel)
         printMsg('"Edit Computations" clicked.')
 
     def changeTabColor(tabType, color):
@@ -687,7 +764,7 @@ if __name__ == '__main__':
             tabType.colNames[i].config(bg = color)
             tabType.colValues[i].config(bg = color)
 
-    # MBK!!! Temporary way to change color to default during code development:
+    # MBK!!! Temporary way to change color to default 
     def changeTabsToDefaultColor():
         for tab in [tabProjectInfo, 
                     tabModelInfo, 
@@ -702,6 +779,32 @@ if __name__ == '__main__':
     def clearTop():
         global frmInputGlobal
         clearFrame(frmInputGlobal)
+
+    """Stuff to delete:
+    textOut = Text()
+    textOut.pack()
+
+    def ls_proc():
+        return Popen(['ls'], stdout=PIPE)
+
+    with dir_proc() as p:
+        if p.stdout:
+            for line in p.stdout:
+                textOut.insert(END, line)
+        if p.stderr:
+            for line in p.stderr:
+                textOut.insert(END, line)
+
+#   ls_proc = Popen('ls', stdout=open('2020_01_31_Test.txt', 'w'))
+#   ls_proc = Popen('ls', stdout=PIPE, stderr=PIPE)
+#   out, err = ls_proc.communicate()
+    result = subprocess.run(['ls', '-l'], stdout=subprocess.PIPE)
+    print('MBK output:', result.stdout.decode('utf-8'))
+
+    Button(root, text='Test output',
+          #command=lambda: redirectedGuiShellCmd('ls -lt')).pack(fill=X)
+           command=lambda: redirectedGuiShellCmd('itough2')).pack(fill=X)
+    """
 
     root.mainloop()
 

@@ -81,7 +81,7 @@ class InfoSubFrame(Frame):
              width=10, 
              height=30, 
              bg=color['tab'], 
-             padx=10)
+             padx=5)
          self.pack(side=TOP, fill=BOTH)
 
 class InfoTitleMenu(Frame):
@@ -115,7 +115,6 @@ class InfoTitleMenu(Frame):
 class InfoCanvas(Frame):
     """Create main canvas in Information for displaying images."""
 
-   #def __init__(self, parent=None, VarProj=[]):
     def __init__(self, parent=None, VarProj=[], frmTop=[]):
         Frame.__init__(self, parent)
         self.config(
@@ -130,8 +129,8 @@ class InfoCanvas(Frame):
 
         self.canv = Canvas(self, relief=FLAT)
         self.canv.config(
-            width=canvWidth,
-            height=canvHeight,
+            width=infoCanvWidth,
+            height=infoCanvHeight,
             scrollregion=canvasScrollRegion,
             highlightthickness=0,
             bg=colorCanv)
@@ -161,10 +160,8 @@ class InfoCanvas(Frame):
         self.canvImage = Text(self, relief=FLAT)
         self.canvImage.config(
             relief=FLAT,
-       #    yscrollcommand=self.sbar2.set,
             highlightthickness=1,
             bd=1)
-       #self.sbar2.config(command=self.canvImage.yview)
  
         self.canvImage.pack(side=LEFT, expand=YES, fill=BOTH)
         path = os.path.join(dirRecent, fileRecent)
@@ -181,11 +178,15 @@ class InfoCanvas(Frame):
 
     def setText(self, text='', file=None):
         if file:
-            text = open(file, 'r').read()
-            self.canvImage.delete('1.0', END)
-            self.canvImage.insert('1.0', text)
-            self.canvImage.mark_set(INSERT, '1.0')
-            self.canvImage.focus()
+            try:
+                text = open(file, 'r').read()
+                self.canvImage.delete('1.0', END)
+                self.canvImage.insert('1.0', text)
+                self.canvImage.mark_set(INSERT, '1.0')
+                self.canvImage.focus()
+            except:
+                MsgInformation([], ['Message',
+                    'File not found: '+file])                
 
 #   def getText(self):
 #       return self.text.get('1.0', 'end-2c')
@@ -289,15 +290,19 @@ class InfoCanvas(Frame):
                 VarProj.canvasButtons['next image']['label'],
                 state='disabled')
  
-    def onChooseFile(self, VarProj, frmTop):
+    def onChooseFile(self, VarProj, frmTop, fileName):
         """Ask to select text file and display it."""
 
-        self.initialOpenDirectory = initialOpenDirectory
-        self.file = filedialog.askopenfilename(
-            initialdir = VarProj.projVar['directory']['current'].get(),
-            title = "Select image",
-           #filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
-            filetypes = (("xml files","*.xml"),("all files","*.*")))
+        if fileName == []:
+            self.initialOpenDirectory = initialOpenDirectory
+            self.file = filedialog.askopenfilename(
+                initialdir = VarProj.projVar['directory']['current'][0].get(),
+                title = "Select image",
+               #filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
+                filetypes = (("xml files","*.xml"),("all files","*.*")))
+        else:
+            self.file = fileName
+
         if self.file:
             self.makeCanvText()
             self.setText('test', self.file)

@@ -56,19 +56,19 @@ class FrameContainer(Frame):
        #self.config(bd=2, relief=FLAT, bg=colorContainer)
         self.config(bd=2, relief=FLAT, bg=colorContainer, height=800, width=1000)
         self.pack(expand=YES, fill=BOTH, side=RIGHT)
-        self.pack_propagate(0) #Turn off geometry propagation for frame to keep window from growing/shrinking
+        self.pack_propagate(0) #Turn off geometry propagation to keep window from growing/shrinking
 
 class FrameLabel(Frame):
     def __init__(self, frm=[], name=[]):
-        self.msg = Label(
+        self.obj = Label(
             frm,
             text=name,
             anchor=NW,
             bg=color['tab'],
             fg=tabTitleColor,
             font=('Helvetica', 18, 'bold'))
-        self.msg.config(width=20, height=1, padx=10, pady=5)
-        self.msg.pack(side=TOP, fill=X)
+        self.obj.config(width=20, height=1, padx=10, pady=5)
+        self.obj.pack(side=TOP, fill=X)
 
 def clearFrame(frm):
     frm.destroy()

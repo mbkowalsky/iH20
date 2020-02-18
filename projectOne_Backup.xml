@@ -11,43 +11,32 @@
    </project-info>
 
    <model-info name="My Model (1)">
-      <simulator>tOUGH2</simulator>
-      <comment>Comments about the first model</comment>
-      <input-file>test(1a).txt</input-file>
-      <input-file>test(1b).txt</input-file>
-<!--
       <model-name>My Model1</model-name>
+      <model-number>1</model-number>
+      <simulator>TOUGH2</simulator>
       <input-dir>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</input-dir>
+      <input-file>test.txt</input-file>
       <input-file>processXML.py</input-file>
--->
+      <comment>Comments about the first model</comment>
    </model-info>
 
    <model-info name="My Model (2)">
-      <simulator>ToUGHREACT</simulator>
-      <comment>Comments about the second model</comment>
-      <input-file>test(2).txt</input-file>
-<!--
       <model-name>My Model2</model-name>
+      <model-number>2</model-number>
+      <simulator>TOUGHREACT</simulator>
       <input-dir>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</input-dir>
       <input-file>test2.txt</input-file>
       <input-file>processXML2.py</input-file>
--->
-   </model-info>
-<!--
-   <model-info name="My Model (3)">
-      <simulator>ToUGHREACT</simulator>
       <comment>Comments about the second model</comment>
    </model-info>
--->
 <!--
-      <application-mode>sEnsitivity</application-mode>
 -->
 
    <paramInfo>
    </paramInfo>
 
    <computations-info>
-      <application-mode>fOrward</application-mode>
+      <application-mode>forward</application-mode>
       <iterations>2</iterations>
       <incomplete>2</incomplete>
       <levenberg>2</levenberg>
