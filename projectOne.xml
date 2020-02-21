@@ -11,6 +11,7 @@
    </project-info>
 
    <model-info name="My Model (1)">
+      <number>0</number>
       <simulator>tOUGH2</simulator>
       <comment>Comments about the first model</comment>
       <input-file>test(1a).txt</input-file>
@@ -23,6 +24,7 @@
    </model-info>
 
    <model-info name="My Model (2)">
+      <number>1</number>
       <simulator>ToUGHREACT</simulator>
       <comment>Comments about the second model</comment>
       <input-file>test(2).txt</input-file>
@@ -33,15 +35,11 @@
       <input-file>processXML2.py</input-file>
 -->
    </model-info>
-<!--
    <model-info name="My Model (3)">
-      <simulator>ToUGHREACT</simulator>
-      <comment>Comments about the second model</comment>
+      <number>2</number>
+      <simulator>ecosys</simulator>
+      <comment>Comments about the third model</comment>
    </model-info>
--->
-<!--
-      <application-mode>sEnsitivity</application-mode>
--->
 
    <paramInfo>
    </paramInfo>

@@ -128,6 +128,11 @@ class InfoCanvas(Frame):
         self.pack(side=RIGHT, fill=BOTH)
 
         self.canv = Canvas(self, relief=FLAT)
+
+# MBK !!! need to sort out binding of mousewheel and pointer for multiple scrollbars
+#       # Will be platform dependent: 
+#       self.canv.bind_all("<MouseWheel>", self._on_mousewheel)
+
         self.canv.config(
             width=infoCanvWidth,
             height=infoCanvHeight,
@@ -141,6 +146,13 @@ class InfoCanvas(Frame):
         self.canv.config(yscrollcommand=self.sbar.set)
         self.sbar.pack(side=RIGHT, fill=Y)
         self.canv.pack(side=LEFT, expand=YES, fill=BOTH)
+
+# MBK !!! need to sort out binding of mousewheel and pointer for multiple scrollbars
+#   def _on_mousewheel(self, event):
+#      # MBK!!! This command will depend on platform
+#      # https://stackoverflow.com/questions/17355902/python-tkinter-binding-mousewheel-to-scrollbar
+#      #self.canv.yview_scroll(-1*(event.delta/120), "units") #for Windows
+#       self.canv.yview_scroll(-1*(event.delta), "units") #for OSX
 
     def makeCanvImage(self, imgfile='iHHO_logo_noBackground.png'): 
         self.canv.delete("all")

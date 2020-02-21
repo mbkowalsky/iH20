@@ -48,12 +48,12 @@ if __name__ == '__main__':
             self.inputLabelsCreated = BooleanVar(value=False)
             self.models = StringVar()
             self.simulators= StringVar()
-#Deleting as these get pulled into dictionaries
-            self.numPar = StringVar(value=0)
-            self.numActivePar = StringVar(value=0)
-            self.numInactivePar = StringVar(value=0)
-            self.numObs = StringVar(value=0)
             self.numMod = IntVar()
+#Deleting as these get pulled into dictionaries or used elsewhere
+            self.numPar = IntVar(value=0)
+            self.numActivePar = IntVar(value=0)
+            self.numInactivePar = IntVar(value=0)
+            self.numObs = IntVar(value=0)
             self.mNum = IntVar()
             self.modelComment = StringVar()
             self.inputFiles = StringVar()
@@ -111,10 +111,10 @@ if __name__ == '__main__':
 
 # Project parameters
             keyProj = {
-                'directory': ['Project directory:', [], dirRecent],
-                'file-name': ['Project filename:', [], 'My File'],
-                'project-name': ['Project name:', [], 'My Project'],
-                'comment': ['Comments:', [], []]}
+                'directory': ['Project directory:', [], dirRecent, 'StringVar()'],
+                'file-name': ['Project filename:', [], 'My File', 'StringVar()'],
+                'project-name': ['Project name:', [], 'My Project', 'StringVar()'],
+                'comment': ['Comments:', [], [], 'StringVar()']}
             self.projList = {}
             self.projListPrev = {}
             self.projVar = {}
@@ -131,11 +131,13 @@ if __name__ == '__main__':
                         'optionList': items[1],
                         'default': items[2],
                         'previous': self.projListPrev[name],
-                        'current': self.projList[name]}})
+                        'current': self.projList[name],
+                        'type': items[3]}})
     
 # Model-setup parameters
             keyModel = {
-                '@name': ['Name of model:', [], 'My Model'],
+                'number': ['Model number:', [], 99, 'IntVar()'],
+                '@name': ['Name of model:', [], 'My Model', 'StringVar()'],
                 'simulator': [
                     'Simulator:', {
                         'None': 'none',
@@ -143,8 +145,9 @@ if __name__ == '__main__':
                         'TOUGHREACT': 'toughreact',
                         'ECOSYS': 'ecosys',
                         'User supplied': 'user'},
-                    'None'],
-                'comment': ['Comments:', [], []]}
+                    'None',
+                    'StringVar()'],
+                'comment': ['Comments:', [], [], 'StringVar()']}
 
             self.modelList = {}
             self.modelListPrev = {}
@@ -163,10 +166,10 @@ if __name__ == '__main__':
                         'optionList': items[1],
                         'default': items[2],
                         'previous': self.modelListPrev[name],
-                        'current': self.modelList[name]}})
+                        'current': self.modelList[name],
+                        'type': items[3]}})
 
-           #name = 'input-file'
-            keyInputFiles = {'input-file': ['Files:', [], []]}
+            keyInputFiles = {'input-file': ['Files:', [], [], 'string']}
             for (name, items) in keyInputFiles.items():
                 print('keyInputFiles.items:', name, items)
                 self.modelFilesList[name]=[]
@@ -177,7 +180,8 @@ if __name__ == '__main__':
                         'optionList': items[1],
                         'default': items[2],
                         'previous': self.modelFilesListPrev[name],
-                        'current': self.modelFilesList[name]}})
+                        'current': self.modelFilesList[name],
+                        'type': items[3]}})
 
 # Computational parameters
             keyComp = {
@@ -187,12 +191,13 @@ if __name__ == '__main__':
                          'Sensitivity analysis': 'sensitivity',
                          'Data-worth analysis': 'data-worth',
                          'Model calibration': 'calibration'},
-                    'Forward Simulation'],
-                'iterations': ['Number of iterations:', [], 1],
-                'incomplete': ['Incomplete runs allowed:', [], 1],
-                'levenberg': ['Levenberg parameter:', [], 1],
-                'marquardt': ['Marquardt parameter:', [], 10],
-                'comment': ['Comments:', [], []]}
+                    'Forward Simulation',
+                    'StringVar()'],
+                'iterations': ['Number of iterations:', [], 1, 'IntVar()'],
+                'incomplete': ['Incomplete runs allowed:', [], 1, 'IntVar()'],
+                'levenberg': ['Levenberg parameter:', [], 1, 'IntVar()'],
+                'marquardt': ['Marquardt parameter:', [], 10, 'IntVar()'],
+                'comment': ['Comments:', [], [], 'StringVar()']}
 
             self.compList = {}
             self.compListPrev = {}
@@ -211,7 +216,8 @@ if __name__ == '__main__':
                         'optionList': items[1],
                         'default': items[2],
                         'previous': self.compListPrev[name],
-                        'current': self.compList[name]}})
+                        'current': self.compList[name],
+                        'type': items[3]}})
 
            #Keeping this as may be a useful approach
            #}
@@ -224,30 +230,6 @@ if __name__ == '__main__':
            #    (d,StringVar(value=v)) for (d,v) in compVarInfo.items())
 
     VarProj = ProjectVariables()
-
-    class ModelVariables(Frame):
-        def __init__(self, parent=None, frm=[]):
-            Frame.__init__(self, parent)
-            self.frm = []
-            self.file = StringVar()
-            self.name = StringVar()
-            self.comment = StringVar()
-            self.status = StringVar()
-            self.num = IntVar()
-            self.numPar = IntVar()
-            self.numActivePar = IntVar()
-            self.numInactivePar = IntVar()
-            self.numObs = IntVar()
-            self.simulator = StringVar()
-            self.simulator.set('None')
-            self.inputFiles = StringVar()
-            self.numInputFiles = IntVar()
-
-           #self.fileDict = {
-           #    0: {'filename': '',
-           #        'directory': ''}
-           #}
-            self.fileDict = {}
 
     selectedTab = StringVar()
     commandOK = StringVar()
@@ -500,7 +482,7 @@ if __name__ == '__main__':
         frmRadio.pack(side=LEFT, expand=NO, fill=NONE, padx=10)
         modeOptions = [
             'Normal mode',
-            'Debug mode'
+            'Edit-all mode'
         ]
         radios = []
         for mode in modeOptions:
@@ -711,13 +693,13 @@ if __name__ == '__main__':
         changeTabColor(tabModelInfo, colorTabActive)
         clearFrame(frmInputGlobal)
         frmInputGlobal = FrameInput(frmSubInput)
-        NewModel = False
+        isNewModel = False
         VarProj.mNum.set(0)
         ModelInputContainer(
             frmInputGlobal, 
             'Model Setup', 
             VarProj, 
-            NewModel,
+            isNewModel,
             frmCanvas,
             frmTop)
         printMsg('"Edit Model Setup" clicked.')
@@ -745,12 +727,12 @@ if __name__ == '__main__':
         changeTabColor(tabComputationsInfo, colorTabActive)
         clearFrame(frmInputGlobal)
         frmInputGlobal = FrameInput(frmSubInput)
-        NewModel = False
+        isNewModel = False
         CompInputContainer(
             frmInputGlobal, 
             'Computations', 
             VarProj, 
-            NewModel)
+            isNewModel)
         printMsg('"Edit Computations" clicked.')
 
     def changeTabColor(tabType, color):

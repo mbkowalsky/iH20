@@ -21,20 +21,21 @@ def readXML(VarProj):
             except Exception as exceptionInfo: 
                 MsgInformation(
                     [],
-                    ['Error!',
-                    ('Error parsing input file "' + path
-                     + '" due to "' + str(exceptionInfo) + '"'
-                    )
-                    ])
+                    ['Error!', 
+                        ('Error parsing input file "' + path
+                            + '" due to "' + str(exceptionInfo) + '"'
+                        )
+                    ]
+                )
                 print(exceptionInfo)
                 return
     except:
         MsgInformation(
             [],         
             ['Error!',
-            ('Could not open project: ' + path
-            )
-            ])
+                ('Could not open project: ' + path)
+            ]
+        )
         return
     
     multiElement = [
@@ -137,12 +138,8 @@ def readXML(VarProj):
                         if printXML: print('     entry found:', entry)
                         if var == 'input-file':
                             if isinstance(entry, list):
-                               #VarProj.modelFiles['input-file']['current'][setNum] = entry
-                               #VarProj.modelFilesList['input-file'][setNum] = entry
                                 genList[var][setNum] = entry
                             else:
-                               #VarProj.modelFiles['input-file']['current'][setNum] = [entry]
-                               #VarProj.modelFilesList['input-file'][setNum] = [entry]
                                 genList[var][setNum] = [entry]
                         else:
                             genList[var][setNum].set(entry)
@@ -187,7 +184,10 @@ def readXML(VarProj):
 def addModelToList(numModels, genVar, genList):
     for i in range(numModels):
         for item in genVar:
-            genList[item].append(StringVar()) 
+           #genList[item].append(StringVar()) 
+            # MBK!!! Not sure whether eval is a good approach
+            genList[item].append(eval(genVar[item]['type'])) 
+           #genList[item].append(genVar[item]['type']) 
 
 def addInputFilesToList(numModels, genVar, genList):
     for i in range(numModels):

@@ -57,7 +57,7 @@ colorTabActive   = 'gray90'
 colorTitleTab    = '#f6f6f6'
 colorToolbar     = '#f6f6f6'
 colorCanv        = 'white'
-colorAddModel    = 'white'
+colorModel       = 'white'
 
 # Settings for text size
 sizeTextWorkflow = 12
