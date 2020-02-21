@@ -1,13 +1,15 @@
 <project>
-   <comments>Data from projectInfo.xml</comments>
+   <comments>Data from projectOne.xml</comments>
    <!-- Comments? -->
    <!-- Settings? -->
 
    <project-info>
-      <directory>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</directory>
+      <directory>
+      /Users/mbkowalsky/mikek/work/software/python/py2app_v1
+      </directory>
       <file-name>projectOne.xml</file-name>
       <project-name>My Project</project-name>
-      <comment>Data from projectInfo.xml</comment>
+      <comment>Comments for project</comment>
    </project-info>
 
    <model-info name="My Model (1)">
@@ -18,7 +20,9 @@
       <input-file>test(1b).txt</input-file>
 <!--
       <model-name>My Model1</model-name>
-      <input-dir>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</input-dir>
+      <input-dir>
+      /Users/mbkowalsky/mikek/work/software/python/py2app_v1
+      </input-dir>
       <input-file>processXML.py</input-file>
 -->
    </model-info>
@@ -29,10 +33,9 @@
       <comment>Comments about the second model</comment>
       <input-file>test(2).txt</input-file>
 <!--
-      <model-name>My Model2</model-name>
-      <input-dir>/Users/mbkowalsky/mikek/work/software/python/py2app_v1</input-dir>
-      <input-file>test2.txt</input-file>
-      <input-file>processXML2.py</input-file>
+      <input-dir>
+      /Users/mbkowalsky/mikek/work/software/python/py2app_v1
+      </input-dir>
 -->
    </model-info>
    <model-info name="My Model (3)">

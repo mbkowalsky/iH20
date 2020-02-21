@@ -59,7 +59,6 @@ def readXML(VarProj):
 
     # Lists for workflow display:
     modelNames = []
-    modelComments = []
     simulatorNames = []
     modelInputFiles = []
 

@@ -33,7 +33,7 @@ class FrameInput(Frame):
 # Project
 ####################
 class ProjectContainer(Frame):
-    def __init__(self, parent=None, nameInput=[], VarProj=[]):
+    def __init__(self, parent=None, nameInput=[], VarProj=[], frmCanvas=[], frmTop=[]):
         Frame.__init__(self, parent)
         self.pack(expand=YES, fill=BOTH)
 
@@ -85,13 +85,21 @@ class ProjectContainer(Frame):
             command=lambda: onClickProjectMenu(
                 VarProj, 
                 'New', 
-                self.frmProjectInfo))
+                self.frmProjectInfo,
+                frmCanvas,
+                frmTop
+            )
+        )
         self.optionsOpenProject.add_command(
             label='Open from file', 
             command=lambda: onClickProjectMenu(
                 VarProj, 
                 'Open',
-                self.frmProjectInfo))
+                self.frmProjectInfo,
+                frmCanvas,
+                frmTop
+            )
+        )
         self.optionsOpenProject.add_command(
             label='Open demo',
             command=lambda: onClickProjectMenu(
@@ -102,41 +110,88 @@ class ProjectContainer(Frame):
 
         # Project files already specified, special case in openProject:
         if VarProj.typeProj.get()=='Open demo':
-            openProject(VarProj, 'Open demo', self.frmProjectInfo)
+            openProject(VarProj, 'Open demo', self.frmProjectInfo, frmCanvas, frmTop)
      
         # Parameters loaded previously, just populate entries:
         if VarProj.inputLabelsCreated.get() == True:
-            makeProjectLabels(VarProj, self.frmProjectInfo)
+            typeIn = 'Old'
+            makeProjectLabels(VarProj, self.frmProjectInfo, frmCanvas, frmTop, typeIn)
 
-def onClickProjectMenu(VarProj, typeIn, frmIn):
+def onClickProjectMenu(VarProj, typeIn, frmIn, frmCanvas, frmTop):
     VarProj.typeProj.set(typeIn)
-    openProject(VarProj, typeIn, frmIn)
+    openProject(VarProj, typeIn, frmIn, frmCanvas, frmTop)
 
-def makeProjectLabels(VarProj, frmIn):
-# MBK !!! Here
-   #print('What key', VarProj.projVar.items())
-   #for (tst, (label, value)) in VarProj.projVar.items():
+def makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, typeIn):
+
+    # Value only changed by selecting and choosing files
     for (label, value) in VarProj.projVar.items():
-       #print('MBK', tst)
-        row = Frame(frmIn)
-        lab = Label(row,
-            text=value['label'],
-            justify=RIGHT,
-            anchor=E,
-            width=40,
-            bg='white',
-            fg=color['inputEntry'],
-            font=('Helvetica', sizeInputEntry, 'bold'))
-        row.pack(side=TOP, fill=X)
-#       if VarProj.projVar.keys() == 'directory':
-        ent = Entry(row, textvariable=value['current'])
-#       else:
-#           ent = Label(row, textvariable=value['current'])
-        ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-        lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
-    VarProj.inputLabelsCreated.set(True)
+        if value['type'] == 'string':
+            row = Frame(frmIn)
+            lab = Label(row,
+                text=value['label'],
+                justify=RIGHT,
+                anchor=E,
+                width=40,
+                bg='white',
+                fg=color['inputEntry'],
+                font=('Helvetica', sizeInputEntry, 'bold'))
+            row.pack(side=TOP, fill=X)
 
-def openProject(VarProj, fileNameIn, frmIn):
+            if not typeIn == 'New':
+                ent = Label(row, textvariable=value['current'])
+                ent.config(anchor=W)
+            else:
+                ent = Entry(row, textvariable=value['current'])
+                ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+            VarProj.inputLabelsCreated.set(True)
+        
+    path = os.path.join(VarProj.projVar['directory']['current'][0].get(), 
+                                VarProj.projVar['file-name']['current'][0].get())
+#   row = Frame(frmIn)
+    if typeIn == 'New':
+        statusButton = 'disabled'
+    else:
+        statusButton = 'active'
+    
+    viewButton = Button(
+                row,
+                text='View',
+                command=lambda: onViewFile(
+                    row,
+                    VarProj,
+                    path,
+                    frmCanvas,
+                    frmTop
+                ),
+                underline=0,
+                fg=colorWorkLabel,
+                bg=colorWorkflow,
+                state=statusButton)
+#   viewButton.config(state=statusButton)
+#   row.pack(side=TOP, fill=X)
+    viewButton.pack(side=RIGHT, expand=NO, fill=X, padx=10)
+
+    for (label, value) in VarProj.projVar.items():
+        if not value['type'] == 'string':
+            row = Frame(frmIn)
+            lab = Label(row,
+                text=value['label'],
+                justify=RIGHT,
+                anchor=E,
+                width=40,
+                bg='white',
+                fg=color['inputEntry'],
+                font=('Helvetica', sizeInputEntry, 'bold'))
+            row.pack(side=TOP, fill=X)
+
+            # Value may be changed within entry box
+            ent = Entry(row, textvariable=value['current'])
+            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+
+def openProject(VarProj, fileNameIn, frmIn, frmCanvas, frmTop):
 
     # Set directory and filename depending on typeProj
     if VarProj.typeProj.get() == 'New':
@@ -165,7 +220,7 @@ def openProject(VarProj, fileNameIn, frmIn):
         path = os.path.join(dirRecent, fileRecent)
         dirName = os.path.dirname(path)
         fileName = os.path.basename(path)
-        makeProjectLabels(VarProj, frmIn)
+        makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, typeIn)
 
     # Read xml file to open project but not if new or editing project
     if (dirName and (VarProj.typeProj.get() in ['Open', 'Open demo'])):
@@ -187,7 +242,8 @@ def openProject(VarProj, fileNameIn, frmIn):
 
     # Populate input entry boxes if not done earlier:
     if (VarProj.inputLabelsCreated.get() == False and dirName):
-        makeProjectLabels(VarProj, frmIn)
+       #makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, typeIn)
+        makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, fileNameIn)
 
 def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
     def addRows(fileName):
@@ -226,7 +282,7 @@ def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
                 row,
                 VarProj,
                 fileName,
-                VarProj.modelFilesList['input-file'][i],
+               #VarProj.modelFilesList['input-file'][i],
                 frmCanvas,
                 frmTop
             ),
@@ -269,8 +325,9 @@ def onDeleteFile(obj, fileName, name):
     name.remove(fileName)
     obj.destroy()
 
-def onViewFile(obj, VarProj, fileName, name, frmCanvas, frmTop):
-    print('MBK', frmCanvas, fileName, name)
+#def onViewFile(obj, VarProj, fileName, name, frmCanvas, frmTop):
+def onViewFile(obj, VarProj, fileName, frmCanvas, frmTop):
+    print('MBK onViewFile', fileName)
     frmCanvas.onChooseFile(VarProj, frmTop, fileName)
 
 ####################

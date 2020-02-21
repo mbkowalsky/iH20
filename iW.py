@@ -2,7 +2,6 @@
 from tkinter            import *
 from tkinter.messagebox import *
 from tkinter            import filedialog
-#from frameMenu          import MainMenu
 from frameToolbar       import FrameToolbar
 from frameInfo          import InfoSubFrame  
 from frameInfo          import InfoTitleMenu
@@ -55,8 +54,6 @@ if __name__ == '__main__':
             self.numInactivePar = IntVar(value=0)
             self.numObs = IntVar(value=0)
             self.mNum = IntVar()
-            self.modelComment = StringVar()
-            self.inputFiles = StringVar()
             self.editMode = StringVar()
             self.editMode.set('Normal mode')
             self.results = StringVar()
@@ -111,8 +108,10 @@ if __name__ == '__main__':
 
 # Project parameters
             keyProj = {
-                'directory': ['Project directory:', [], dirRecent, 'StringVar()'],
-                'file-name': ['Project filename:', [], 'My File', 'StringVar()'],
+               #'directory': ['Project directory:', [], dirRecent, 'StringVar()'],
+               #'file-name': ['Project filename:', [], 'My File', 'StringVar()'],
+                'directory': ['Project directory:', [], dirRecent, 'string'],
+                'file-name': ['Project file:', [], 'My_Project.xml', 'string'],
                 'project-name': ['Project name:', [], 'My Project', 'StringVar()'],
                 'comment': ['Comments:', [], [], 'StringVar()']}
             self.projList = {}
@@ -683,7 +682,10 @@ if __name__ == '__main__':
         ProjectContainer(
             frmInputGlobal, 
             'Project details', 
-            VarProj)
+            VarProj,
+            frmCanvas, 
+            frmTop
+        )
         printMsg('"Edit Project" clicked.')                 
 
     def editModelSetup():
