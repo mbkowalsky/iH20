@@ -111,7 +111,7 @@ if __name__ == '__main__':
                #'directory': ['Project directory:', [], dirRecent, 'StringVar()'],
                #'file-name': ['Project filename:', [], 'My File', 'StringVar()'],
                 'directory': ['Project directory:', [], dirRecent, 'string'],
-                'file-name': ['Project file:', [], 'My_Project.xml', 'string'],
+                'file-name': ['Project file:', [], 'Project.xml', 'string'],
                 'project-name': ['Project name:', [], 'My Project', 'StringVar()'],
                 'comment': ['Comments:', [], [], 'StringVar()']}
             self.projList = {}
@@ -168,6 +168,7 @@ if __name__ == '__main__':
                         'current': self.modelList[name],
                         'type': items[3]}})
 
+# Model-setup parameters (input files)
             keyInputFiles = {'input-file': ['Files:', [], [], 'string']}
             for (name, items) in keyInputFiles.items():
                 print('keyInputFiles.items:', name, items)

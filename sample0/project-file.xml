@@ -1,0 +1,70 @@
+<project>
+   <comments>Data from projectOne.xml</comments>
+   <!-- Comments? -->
+   <!-- Settings? -->
+
+   <project-info>
+      <directory>
+         /Users/mbkowalsky/iH2O/sample0
+      </directory>
+      <file-name>
+         project-file.xml
+      </file-name>
+      <project-name>My Project</project-name>
+      <comment>Comments for project</comment>
+   </project-info>
+
+   <model-info name="model-1">
+      <number>0</number>
+      <simulator>tOUGH2</simulator>
+      <comment>Comments about the first model</comment>
+      <input-file>
+         /Users/mbkowalsky/iH2O/sample0/input-1A.txt
+      </input-file>
+      <input-file>
+         /Users/mbkowalsky/iH2O/sample0/input-1B.txt
+      </input-file>
+<!--
+      <input-dir>
+         /Users/mbkowalsky/iH2O/sample0
+      </input-dir>
+-->
+   </model-info>
+
+   <model-info name="model-2">
+      <number>1</number>
+      <simulator>ToUGHREACT</simulator>
+      <comment>Comments about the second model</comment>
+      <input-file>
+         /Users/mbkowalsky/iH2O/sample0/input-2A.txt 
+      </input-file>
+   </model-info>
+
+   <model-info name="model-3">
+      <number>2</number>
+      <simulator>ecosys</simulator>
+      <comment>Comments about the third model</comment>
+      <input-file>
+         /Users/mbkowalsky/iH2O/sample0/not-a-file.txt 
+      </input-file>
+   </model-info>
+
+   <paramInfo>
+   </paramInfo>
+
+   <computations-info>
+      <application-mode>fOrward</application-mode>
+      <iterations>2</iterations>
+      <incomplete>2</incomplete>
+      <levenberg>2</levenberg>
+      <marquardt>12</marquardt>
+      <generic>1</generic>
+      <comment>Comments about the computational parameters</comment>
+   </computations-info>
+
+   <!-- Available results, names of output files? -->
+   <results>
+      <file>None</file>
+   </results>
+</project>
+

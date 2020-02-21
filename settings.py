@@ -88,21 +88,25 @@ wrapLengthInfo = 200
 
 # Results
 dirResults = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1/thumbs' 
-initialOpenDirectory = '/Users/mbkowalsky/mikek/photos/2019_12_19_Private_Free_Luca/'
+#initialOpenDirectory = '/Users/mbkowalsky/mikek/photos/2019_12_19_Private_Free_Luca/'
+#initialOpenDirectory = '/Users/mbkowalsky/mikek/photos/2019_10_27_Private_Gennifer/ForGennifer/'
+initialOpenDirectory = '/Users/mbkowalsky/iH2O/'
 
 # Thumbnail images
-dirThumbs = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1/thumbs' 
+#dirThumbs = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1/thumbs' 
+dirThumbs = '/Users/mbkowalsky/iH2O/thumbs'
 sizeThumbs = (30, 30)
 
 # Variables for output entries in Information
 
 # Info for loading recent project (???hardwired for now)
-dirRecent = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1'
+#dirRecent = '/Users/mbkowalsky/mikek/work/software/python/py2app_v1'
+dirRecent = '/Users/mbkowalsky/iH2O/sample0'
 #fileRecent = 'projectInfo.xml'
-fileRecent = 'projectOne.xml'
-initialDirAddFile = '.'
-#defaultProjName = 'My Project'
-#defaultProjFilename = 'untitled.xml'
+#fileRecent = 'projectOne.xml'
+fileRecent = 'project-file.xml'
+initialDirAddFile= '/Users/mbkowalsky/iH2O/'
+initialDirProjectFile= '/Users/mbkowalsky/iH2O/'
 checkBoxFilename = 'checkbox.png'
 sizeCheckBox = (500, 10)
 

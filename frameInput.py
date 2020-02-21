@@ -123,6 +123,24 @@ def onClickProjectMenu(VarProj, typeIn, frmIn, frmCanvas, frmTop):
 
 def makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, typeIn):
 
+    for (label, value) in VarProj.projVar.items():
+        if not value['type'] == 'string':
+            row = Frame(frmIn)
+            lab = Label(row,
+                text=value['label'],
+                justify=RIGHT,
+                anchor=E,
+                width=40,
+                bg='white',
+                fg=color['inputEntry'],
+                font=('Helvetica', sizeInputEntry, 'bold'))
+            row.pack(side=TOP, fill=X)
+
+            # Value may be changed within entry box
+            ent = Entry(row, textvariable=value['current'])
+            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
+            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
+
     # Value only changed by selecting and choosing files
     for (label, value) in VarProj.projVar.items():
         if value['type'] == 'string':
@@ -173,29 +191,12 @@ def makeProjectLabels(VarProj, frmIn, frmCanvas, frmTop, typeIn):
 #   row.pack(side=TOP, fill=X)
     viewButton.pack(side=RIGHT, expand=NO, fill=X, padx=10)
 
-    for (label, value) in VarProj.projVar.items():
-        if not value['type'] == 'string':
-            row = Frame(frmIn)
-            lab = Label(row,
-                text=value['label'],
-                justify=RIGHT,
-                anchor=E,
-                width=40,
-                bg='white',
-                fg=color['inputEntry'],
-                font=('Helvetica', sizeInputEntry, 'bold'))
-            row.pack(side=TOP, fill=X)
-
-            # Value may be changed within entry box
-            ent = Entry(row, textvariable=value['current'])
-            ent.pack(side=RIGHT, expand=YES, fill=X, padx=10)
-            lab.pack(side=LEFT, expand=NO, fill=X, padx=10)
 
 def openProject(VarProj, fileNameIn, frmIn, frmCanvas, frmTop):
 
     # Set directory and filename depending on typeProj
     if VarProj.typeProj.get() == 'New':
-        dirName = filedialog.askdirectory()
+        dirName = filedialog.askdirectory(initialdir=initialDirProjectFile)
         if dirName:
             VarProj.projVar['directory']['current'][0].set(dirName)
         else:
@@ -226,6 +227,8 @@ def openProject(VarProj, fileNameIn, frmIn, frmCanvas, frmTop):
     if (dirName and (VarProj.typeProj.get() in ['Open', 'Open demo'])):
         VarProj.projVar['file-name']['current'][0].set(fileName)
         VarProj.projVar['directory']['current'][0].set(dirName)
+        #MBK 
+        initialOpenDirectory = dirName
         readXML(VarProj)
         # Initial file was read, so change typeProj
         VarProj.typeProj.set('Editing')
@@ -254,7 +257,7 @@ def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
             text=fileName,
             justify=LEFT,
             anchor=SW,
-            width=20,
+            width=60,
             bg='white',
            #fg=color['inputEntry'],
             fg='black',
@@ -306,7 +309,8 @@ def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
             fileNameX = os.path.basename(newFile)
 
             print('old files:', (VarProj.modelFilesList))
-            VarProj.modelFilesList['input-file'][i].append(fileNameX)
+           #VarProj.modelFilesList['input-file'][i].append(fileNameX)
+            VarProj.modelFilesList['input-file'][i].append(newFile)
             print('new files:', (VarProj.modelFilesList))
             print('new files[i]:', (VarProj.modelFilesList['input-file'][i]))
 
@@ -317,9 +321,27 @@ def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
             MsgNotImplemented([], ['Message', 'Cancelled'])
 
     else:
+        # MBK digs
+        # MBK !!! Check here whether file exists?
         # Add all model entries
+       #for fileName in VarProj.modelFilesList['input-file'][i]:
+       #    addRows(fileName)
         for fileName in VarProj.modelFilesList['input-file'][i]:
-            addRows(fileName)
+            if os.path.isfile(fileName):
+                addRows(fileName)
+            else:
+                MsgInformation(
+                    [],
+                   #['Message', 'File not found: '+fileName]
+                    ['Message', 
+                     'File "'+fileName+'", as entered in model "'+
+                      VarProj.modelVar['@name']['current'][i].get()+
+                      '", was not found.'
+                    ]
+                )
+                # MBK !!! Perhaps existence of file should be checked earlier???
+                # Remove fileName from list since does not exist
+                VarProj.modelFilesList['input-file'][i].remove(fileName)
 
 def onDeleteFile(obj, fileName, name):
     name.remove(fileName)
@@ -558,7 +580,6 @@ class ModelInputContainer(Frame):
             width=0
         )
         self.optionsSelectFile = Menu(self.menuSelectFile)
-        print('MBK addFile frmInput', frmInputList[i])
         self.optionsSelectFile.add_command(
             label='Select file', 
             command=lambda:addFile(
@@ -758,7 +779,9 @@ class modeInput(Frame):
 
         # Add labels and entries for a model:
         for (label, value) in VarProj.compVar.items():
-            if not label == 'application-mode' and value['current'][1].get():
+           #print('MBK comp', label, value)
+           #if not label == 'application-mode' and value['current'][1].get():
+            if not label == 'application-mode':
                 row = Frame(self.frmInput)
                 lab = Label(
                     row,

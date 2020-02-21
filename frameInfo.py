@@ -162,10 +162,10 @@ class InfoCanvas(Frame):
         self.obj.thumbnail(sizeCanvImage, Image.ANTIALIAS)
         self.img = PhotoImage(self.obj)
         self.canvImage = self.canv.create_image(
-                x0_CanvImage,
-                y0_CanvImage, 
-                anchor = NW, 
-                image = self.img)
+            x0_CanvImage,
+            y0_CanvImage, 
+            anchor = NW, 
+            image = self.img)
 
     def makeCanvText(self):
         self.canv.delete('all')
@@ -224,8 +224,7 @@ class InfoCanvas(Frame):
         Enable the button to call onNext and display next image.
         """
 
-       #self.makeCanvImage()
-        self.directory = filedialog.askdirectory()
+        self.directory = filedialog.askdirectory(initialdir=initialOpenDirectory)
         if self.directory:
             self.thumbs = []
             for imgfile in os.listdir(self.directory):
@@ -287,7 +286,7 @@ class InfoCanvas(Frame):
         self.initialOpenDirectory = initialOpenDirectory
         self.file = filedialog.askopenfilename(
             initialdir = self.initialOpenDirectory, 
-            title = "Select image",
+            title = 'Select image',
             filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
         if self.file:
             self.makeCanvImage()
@@ -309,9 +308,9 @@ class InfoCanvas(Frame):
             self.initialOpenDirectory = initialOpenDirectory
             self.file = filedialog.askopenfilename(
                 initialdir = VarProj.projVar['directory']['current'][0].get(),
-                title = "Select image",
+                title = 'Select text file')
                #filetypes = (("xml files","*.xml"),("jpeg files","*.jpg")))
-                filetypes = (("xml files","*.xml"),("all files","*.*")))
+               #filetypes = (("xml files","*.xml"),("all files","*.*")))
         else:
             self.file = fileName
 

@@ -189,6 +189,7 @@ def addModelToList(numModels, genVar, genList):
            #genList[item].append(genVar[item]['type']) 
 
 def addInputFilesToList(numModels, genVar, genList):
+    #MBK !!! Check here to see if file exists? 
     for i in range(numModels):
         for item in genVar:
            #genList[item].append('')
