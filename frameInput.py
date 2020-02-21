@@ -249,9 +249,10 @@ def addFile(frm, VarProj, i, loadExisting, frmCanvas, frmTop):
             dirNameX = os.path.dirname(newFile)
             fileNameX = os.path.basename(newFile)
 
-           #print('old', (VarProj.modelFilesList))
+            print('old files:', (VarProj.modelFilesList))
             VarProj.modelFilesList['input-file'][i].append(fileNameX)
-           #print('old2', (VarProj.modelFilesList))
+            print('new files:', (VarProj.modelFilesList))
+            print('new files[i]:', (VarProj.modelFilesList['input-file'][i]))
 
             # Adding new model entries (not existing ones)
             addRows(VarProj.modelFilesList['input-file'][i][-1])
@@ -299,6 +300,7 @@ class ModelInputContainer(Frame):
         self.pack(side=TOP, fill=BOTH, padx=0)
  
         frmAddModelList = []
+        frmInputList = []
 
         # Add new model in to scrollable frame
         addModelButton = Button(
@@ -360,7 +362,8 @@ class ModelInputContainer(Frame):
                             isNewModel, 
                             frmCanvas, 
                             frmTop,
-                            frmAddModelList
+                            frmAddModelList,
+                            frmInputList
                         )
             else:
                 # New model  
@@ -371,7 +374,8 @@ class ModelInputContainer(Frame):
                     TRUE,
                     frmCanvas,
                     frmTop,
-                    frmAddModelList
+                    frmAddModelList,
+                    frmInputList
                 )
 
         callAddModel(VarProj.numMod.get(), FALSE, frmAddModelList)
@@ -384,7 +388,8 @@ class ModelInputContainer(Frame):
 #      #self.canv.yview_scroll(-1*(event.delta/120), "units") #for Windows
 #       self.canv.yview_scroll(-1*(event.delta), "units") #for OSX
 
-    def AddModel(self, frmScroll, VarProj, i, isNewModel, frmCanvas, frmTop, frmAddModelList):
+    def AddModel(self, frmScroll, VarProj, i, isNewModel, frmCanvas, frmTop, 
+                 frmAddModelList, frmInputList):
         """Create subframe in ModelInputContainer for adding a new model.
         """
 
@@ -426,12 +431,18 @@ class ModelInputContainer(Frame):
         self.deleteButton.pack(side=TOP, fill=X, padx=5, pady=5)
 
         # Frame for model entries:
-        self.frmInput = Frame(self.frmAddModel)
-        self.frmInput.pack(side=LEFT, fill=NONE, expand=YES, anchor=W)
-        self.frmInput.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
+        frmInput = Frame(self.frmAddModel)
+        frmInput.pack(side=LEFT, fill=NONE, expand=YES, anchor=W)
+        frmInput.config(bd=1, relief=FLAT, height=30, bg=color['tab'])
+        try:
+            frmInputList.append(frmInput)
+            print('frmInputList.append(frmInput)', i, frmInputList)
+        except:
+            print('NOPE frmInputList.append(frmInput)', i)
+            frmInputList = []
 
         # Menu for simulator selection:
-        row = Frame(self.frmInput)
+        row = Frame(frmInputList[i])
         row.config(bg=colorModel)
         label = Label(
             row,
@@ -461,7 +472,7 @@ class ModelInputContainer(Frame):
         # Labels and entries for a model:
         for (key) in VarProj.modelVar:
             if not key == 'simulator':
-                row = Frame(self.frmInput)
+                row = Frame(frmInputList[i])
                 label = Label(
                     row,
                     text=VarProj.modelVar[key]['label'],
@@ -490,10 +501,12 @@ class ModelInputContainer(Frame):
             width=0
         )
         self.optionsSelectFile = Menu(self.menuSelectFile)
+        print('MBK addFile frmInput', frmInputList[i])
         self.optionsSelectFile.add_command(
             label='Select file', 
             command=lambda:addFile(
-                self.frmInput, 
+               #self.frmInput, 
+                frmInputList[i], 
                 VarProj, 
                 i, 
                 FALSE,
@@ -513,7 +526,7 @@ class ModelInputContainer(Frame):
             pady=5
         )
         self.nameLabel = Label(
-            self.frmInput,
+            frmInputList[i],
             text=VarProj.modelFiles['input-file']['label'],
             justify=RIGHT,
             anchor=NE,
@@ -527,7 +540,7 @@ class ModelInputContainer(Frame):
 
         # Display existing input file names
         loadExisting = TRUE
-        addFile(self.frmInput, VarProj, i, loadExisting, frmCanvas, frmTop)
+        addFile(frmInputList[i], VarProj, i, loadExisting, frmCanvas, frmTop)
 
         if isNewModel == TRUE:
             VarProj.modelVar['number']['current'][i].set(

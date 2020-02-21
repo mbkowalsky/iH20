@@ -501,7 +501,7 @@ if __name__ == '__main__':
 
         def setEditButtons():
             # MBK!!! For now can only switch "to" debug mode, then disabled
-            if VarProj.editMode.get() == 'Debug mode':
+            if VarProj.editMode.get() == 'Edit-all mode':
                 for tab in VarProj.editButtonStatus:
                     VarProj.editButtonStatus[tab].set('active')
                     tabProjectInfo.editButton['state'] = 'active'
